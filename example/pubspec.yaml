@@ -21,7 +21,6 @@ dependencies:
     sdk: flutter
   crop:
     path: ../
-  vector_math: any
 
 dev_dependencies:
   flutter_test:
