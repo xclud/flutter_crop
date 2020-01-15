@@ -1,6 +1,6 @@
 # crop
 
-A Flutter package for cropping any widget, not only images. This package is entirely written in Dart and supports Android, iOS, Web and Desktop. Also, because of being independent from native platform, it does not increase your apps output.
+A Flutter package for cropping any widget, not only images. This package is entirely written in Dart and supports Android, iOS, Web and Desktop. Also, because of being independent from native platform, it does not increase size of your apps output (e.g. apk).
 
 ![Crop Demo on Google Play](/doc/google-play-badge.png)
 
