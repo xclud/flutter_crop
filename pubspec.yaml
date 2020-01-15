@@ -1,6 +1,6 @@
 name: crop
 description: Crop images with fancy customization UI.
-version: 0.0.1
+version: 0.1.0
 homepage: https://github.com/xclud/flutter_crop
 
 environment:
