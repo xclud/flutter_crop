@@ -1,3 +1,3 @@
-## [0.0.1] - TODO: Add release date.
+## [0.0.1] - Initialize package placeholder.
+## [0.1.0] - Initial release of the package.
 
-* TODO: Describe initial release.

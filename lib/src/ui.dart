@@ -205,13 +205,6 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
         sz.width - v,
         sz.height - h,
       );
-      final size0 = getSizeToFitByRatio(
-        _aspectRatio,
-        sz.width,
-        sz.height,
-      );
-
-      final rect = insets.deflateRect(Offset.zero & size0);
 
       final offset = Offset(
         sz.width - size.width,
