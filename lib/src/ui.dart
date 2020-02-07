@@ -280,10 +280,10 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<ui.Image> crop() {
+  Future<ui.Image> crop({double pixelRatio: 1}) {
     RenderRepaintBoundary rrb =
         _previewContainer.currentContext.findRenderObject();
-    return rrb.toImage();
+    return rrb.toImage(pixelRatio: pixelRatio);
   }
 }
 
