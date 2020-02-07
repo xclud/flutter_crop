@@ -280,6 +280,16 @@ class CropState extends State<Crop> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// Capture an image of the current state of this widget and its children.
+  ///
+  /// The returned [ui.Image] has uncompressed raw RGBA bytes, will have
+  /// dimensions equal to the size of the [child] widget multiplied by [pixelRatio].
+  ///
+  /// The [pixelRatio] describes the scale between the logical pixels and the
+  /// size of the output image. It is independent of the
+  /// [window.devicePixelRatio] for the device, so specifying 1.0 (the default)
+  /// will give you a 1:1 mapping between logical pixels and the output pixels
+  /// in the image.
   Future<ui.Image> crop({double pixelRatio: 1}) {
     RenderRepaintBoundary rrb =
         _previewContainer.currentContext.findRenderObject();
