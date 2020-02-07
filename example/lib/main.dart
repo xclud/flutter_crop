@@ -25,9 +25,10 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _cropKey = GlobalKey<CropState>();
   double _rotation = 0;
-
   void _cropImage() async {
-    final cropped = await _cropKey.currentState.crop();
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final cropped = await _cropKey.currentState.crop(pixelRatio: pixelRatio);
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
