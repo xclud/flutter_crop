@@ -2,22 +2,25 @@
 
 A Flutter package for cropping any widget, not only images. This package is entirely written in Dart and supports Android, iOS, Web and Desktop. Also, because of being independent from native platform, it does not increase size of your apps output (e.g. apk).
 
-[![Crop Demo on Google Play](doc/google-play-badge.png)](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
+[![Crop Demo on Google Play](https://play.google.com/intl/en_us/badges/images/badge_new.png)](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
 
-![Demo of Crop](doc/demo1.gif)
+<img alt="Demo of Crop" src="doc/demo1.gif" width="35%" />
 
 ## Getting Started
 
-In your `pubspec.yaml` file add:
+In your flutter project add the dependency:
 
-```dart
+[![pub package](https://img.shields.io/pub/v/crop.svg)](https://pub.dartlang.org/packages/crop)
+
+```yaml
 dependencies:
   crop: any
 ```
-Then, in your code import:
-```dart
-import 'package:crop/crop.dart';
-```
+
+For help getting started with Flutter, view the online [documentation](https://flutter.io/).
+
+## Usage example
+
 Now in build function, put a Crop widget in the widget tree:
 
 ```dart
@@ -29,15 +32,11 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Crop Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+    title: 'Crop Demo',
+    theme: ThemeData(primarySwatch: Colors.blue),
+    home: MyHomePage(),
+  );
 }
 
 class MyHomePage extends StatefulWidget {
@@ -46,11 +45,25 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _cropKey = GlobalKey<CropState>();
-  double _rotation = 0;
+  CropController _cropController;
+
+  @override
+  void initState() {
+    // Initialize controller
+    _cropController = CropController(
+      initialValue: CropValue(aspectRatio: 16 / 9),
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _cropController.dispose();
+    super.dispose();
+  }
 
   void _cropImage() async {
-    final cropped = await _cropKey.currentState.crop();
+    final cropped = await _cropController.crop();
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
@@ -59,9 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
             centerTitle: true,
           ),
           body: Center(
-            child: RawImage(
-              image: cropped,
-            ),
+            child: RawImage(image: cropped),
           ),
         ),
         fullscreenDialog: true,
@@ -87,10 +98,10 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: <Widget>[
           Expanded(
+            // Show image preview
             child: Crop(
-              key: _cropKey,
+              controller: _cropController,
               child: Image.asset('images/sample.jpg'),
-              aspectRatio: 1000 / 667.0,
             ),
           ),
           Row(
@@ -98,39 +109,30 @@ class _MyHomePageState extends State<MyHomePage> {
               IconButton(
                 icon: Icon(Icons.undo),
                 tooltip: 'Undo',
-                onPressed: () {
-                  _cropKey.currentState.rotation = 0;
-                  _cropKey.currentState.scale = 1;
-                  _cropKey.currentState.offset = Offset.zero;
-                  setState(() {
-                    _rotation = 0;
-                  });
-                },
+                // Reset all changes
+                onPressed: _cropController.reset,
               ),
               Expanded(
                 child: SliderTheme(
                   data: theme.sliderTheme.copyWith(
                     trackShape: CenteredRectangularSliderTrackShape(),
                   ),
-                  child: Slider(
-                    divisions: 91,
-                    value: _rotation,
-                    min: -45,
-                    max: 45,
-                    label: '$_rotation°',
-                    onChanged: (n) {
-                      setState(() {
-                        _rotation = n.roundToDouble();
-                        _cropKey.currentState.rotation = _rotation;
-                      });
-                    },
+                  // Show slider for rotate image
+                  child: StreamBuilder<CropValue>(
+                    initialData: _cropController.value,
+                    stream: _cropController.valueStream,
+                    builder: (_, snapshot) => Slider(
+                      divisions: 91,
+                      value: snapshot.data.rotation,
+                      min: -45,
+                      max: 45,
+                      label: snapshot.data.rotation.toString(),
+                      onChanged: (value) {
+                        _cropController.rotation = value.roundToDouble();
+                      },
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(Icons.aspect_ratio),
-                tooltip: 'Aspect Ratio',
-                onPressed: () {},
               ),
             ],
           ),
