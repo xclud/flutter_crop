@@ -23,11 +23,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _cropKey = GlobalKey<CropState>();
+  final controller = CropController(aspectRatio: 1000 / 667.0);
   double _rotation = 0;
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final cropped = await _cropKey.currentState.crop(pixelRatio: pixelRatio);
+    final cropped = await controller.crop(pixelRatio: pixelRatio);
 
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -66,9 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Expanded(
             child: Crop(
-              key: _cropKey,
+              controller: controller,
               child: Image.asset('images/sample.jpg'),
-              aspectRatio: 1000 / 667.0,
             ),
           ),
           Row(
@@ -77,9 +76,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.undo),
                 tooltip: 'Undo',
                 onPressed: () {
-                  _cropKey.currentState.rotation = 0;
-                  _cropKey.currentState.scale = 1;
-                  _cropKey.currentState.offset = Offset.zero;
+                  controller.rotation = 0;
+                  controller.scale = 1;
+                  controller.offset = Offset.zero;
                   setState(() {
                     _rotation = 0;
                   });
@@ -99,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (n) {
                       setState(() {
                         _rotation = n.roundToDouble();
-                        _cropKey.currentState.rotation = _rotation;
+                        controller.rotation = _rotation;
                       });
                     },
                   ),
