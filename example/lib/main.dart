@@ -68,6 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Crop(
               controller: controller,
               child: Image.asset('images/sample.jpg'),
+              borderWidth: 5,
+              borderColor: Colors.red,
             ),
           ),
           Row(

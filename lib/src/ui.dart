@@ -10,6 +10,8 @@ class Crop extends StatefulWidget {
   final Color backgroundColor;
   final Color dimColor;
   final EdgeInsetsGeometry padding;
+  final Color borderColor;
+  final double borderWidth;
   final CropController controller;
   Crop({
     Key key,
@@ -18,6 +20,8 @@ class Crop extends StatefulWidget {
     this.padding: const EdgeInsets.all(8),
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
     this.backgroundColor: Colors.black,
+    this.borderColor: Colors.white,
+    this.borderWidth: 2
   }) : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -208,7 +212,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
                     size: size,
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: widget.borderColor, width: widget.borderWidth),
                       ),
                     ),
                   ),
