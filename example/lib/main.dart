@@ -1,6 +1,8 @@
 import 'package:app/centered_slider_track_shape.dart';
 import 'package:flutter/material.dart';
 import 'package:crop/crop.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(MyApp());
 
@@ -54,6 +56,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('Crop Demo'),
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(FontAwesome.github),
+          onPressed: () {
+            launch('https://github.com/xclud/flutter_crop');
+          },
+        ),
         actions: <Widget>[
           IconButton(
             onPressed: _cropImage,
@@ -68,8 +76,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Crop(
               controller: controller,
               child: Image.asset('images/sample.jpg'),
-              borderWidth: 5,
-              borderColor: Colors.red,
+              borderWidth: 2,
+              borderColor: Colors.white,
             ),
           ),
           Row(
