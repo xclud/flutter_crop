@@ -13,6 +13,8 @@ class Crop extends StatefulWidget {
   final Color borderColor;
   final double borderWidth;
   final CropController controller;
+  final Widget foreground;
+
   Crop({
     Key key,
     @required this.child,
@@ -21,7 +23,8 @@ class Crop extends StatefulWidget {
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
     this.backgroundColor: Colors.black,
     this.borderColor: Colors.white,
-    this.borderWidth: 2
+    this.borderWidth: 2,
+    this.foreground,
   }) : super(key: key);
   @override
   State<StatefulWidget> createState() {
@@ -172,6 +175,31 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
           sz.height - size.height,
         ).scale(0.5, 0.5);
 
+        Widget getInCanvas() {
+          final ip = IgnorePointer(
+            key: _key,
+            child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..translate(o.dx, o.dy, 0)
+                ..rotateZ(r)
+                ..scale(s, s, 1),
+              child: widget.child,
+            ),
+          );
+          if (widget.foreground == null) {
+            return ip;
+          } else {
+            return Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                ip,
+                widget.foreground,
+              ],
+            );
+          }
+        }
+
         return ClipRect(
           child: Stack(
             fit: StackFit.expand,
@@ -184,16 +212,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
                     size: size,
                     child: RepaintBoundary(
                       key: widget.controller._previewKey,
-                      child: IgnorePointer(
-                        key: _key,
-                        child: Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.identity()
-                              ..translate(o.dx, o.dy, 0)
-                              ..rotateZ(r)
-                              ..scale(s, s, 1),
-                            child: widget.child),
-                      ),
+                      child: getInCanvas(),
                     ),
                   ),
                 ),
@@ -212,7 +231,9 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
                     size: size,
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: widget.borderColor, width: widget.borderWidth),
+                        border: Border.all(
+                            color: widget.borderColor,
+                            width: widget.borderWidth),
                       ),
                     ),
                   ),
@@ -290,6 +311,11 @@ class CropController extends ChangeNotifier {
     _offset = value;
     notifyListeners();
   }
+
+  Matrix4 get transform => Matrix4.identity()
+    ..translate(_offset.dx, _offset.dy, 0)
+    ..rotateZ(_rotation)
+    ..scale(_scale, _scale, 1);
 
   CropController({
     double aspectRatio: 1.0,
