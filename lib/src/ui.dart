@@ -26,9 +26,21 @@ class Crop extends StatefulWidget {
     this.borderWidth: 2,
     this.foreground,
   }) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _CropState();
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<EdgeInsets>('padding', padding));
+    properties.add(DoubleProperty('borderWidth', borderWidth));
+    properties.add(ColorProperty('borderColor', borderColor));
+    properties.add(ColorProperty('dimColor', dimColor));
+    properties.add(DiagnosticsProperty('child', child));
+    properties.add(DiagnosticsProperty('foreground', foreground));
   }
 }
 
@@ -170,11 +182,6 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
           sz.height - h,
         );
 
-        final offset = Offset(
-          sz.width - size.width,
-          sz.height - size.height,
-        ).scale(0.5, 0.5);
-
         Widget getInCanvas() {
           final ip = IgnorePointer(
             key: _key,
@@ -205,36 +212,13 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
             fit: StackFit.expand,
             children: <Widget>[
               Container(color: widget.backgroundColor),
-              Padding(
-                padding: widget.padding,
+              Dim(
                 child: FittedBox(
                   child: SizedBox.fromSize(
                     size: size,
                     child: RepaintBoundary(
                       key: widget.controller._previewKey,
                       child: getInCanvas(),
-                    ),
-                  ),
-                ),
-              ),
-              ClipPath(
-                clipper: _InvertedRectangleClipper(offset & size),
-                child: IgnorePointer(
-                  child: Container(color: widget.dimColor),
-                ),
-              ),
-              Padding(
-                padding: widget.padding,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: SizedBox.fromSize(
-                    size: size,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: widget.borderColor,
-                            width: widget.borderWidth),
-                      ),
                     ),
                   ),
                 ),
@@ -263,22 +247,6 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller.removeListener(_reCenterImage);
     super.dispose();
   }
-}
-
-class _InvertedRectangleClipper extends CustomClipper<Path> {
-  final Rect rect;
-  _InvertedRectangleClipper(this.rect);
-
-  @override
-  Path getClip(Size size) {
-    return Path()
-      ..addRect(rect)
-      ..addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height))
-      ..fillType = PathFillType.evenOdd;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
 class CropController extends ChangeNotifier {
@@ -353,5 +321,81 @@ class CropController extends ChangeNotifier {
   Future<ui.Image> crop({double pixelRatio: 1}) {
     RenderRepaintBoundary rrb = _previewKey.currentContext.findRenderObject();
     return rrb.toImage(pixelRatio: pixelRatio);
+  }
+}
+
+class Dim extends SingleChildRenderObjectWidget {
+  final Color dimColor;
+  Dim({Widget child, this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8)})
+      : super(child: child);
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return DimRenderObject()..dimColor = dimColor;
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, DimRenderObject renderObject) {
+    renderObject?.dimColor = dimColor;
+    super.updateRenderObject(context, renderObject);
+  }
+}
+
+class DimRenderObject extends RenderBox
+    with RenderObjectWithChildMixin<RenderBox> {
+  Color dimColor;
+  @override
+  bool hitTestSelf(Offset position) => false;
+
+  @override
+  void performLayout() {
+    final BoxConstraints constraints = this.constraints;
+
+    if (child != null) {
+      child.layout(constraints.loosen(), parentUsesSize: true);
+    }
+    size = constraints.biggest;
+  }
+
+  Path _getDimClipPath() {
+    final center = Offset(
+      size.width / 2,
+      size.height / 2,
+    );
+    Rect rect = Rect.fromCenter(
+        center: center, width: child.size.width, height: child.size.height);
+
+    return Path()
+      ..addRect(rect)
+      ..addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height))
+      ..fillType = PathFillType.evenOdd;
+  }
+
+  @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {}
+
+  void paint(PaintingContext context, Offset offset) {
+    final bounds = offset & size;
+
+    if (child != null) {
+      final Offset tmp = size - child.size;
+
+      final area = offset + tmp / 2 & child.size;
+      context.paintChild(child, offset + tmp / 2);
+
+      final clipPath = _getDimClipPath();
+
+      context.pushClipPath(needsCompositing, offset, bounds, clipPath,
+          (context, offset) {
+        context.canvas.drawRect(bounds, Paint()..color = dimColor);
+      });
+
+      context.canvas.drawRect(
+        area,
+        Paint()
+          ..color = Colors.white
+          ..strokeWidth = 2
+          ..style = PaintingStyle.stroke,
+      );
+    }
   }
 }

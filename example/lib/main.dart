@@ -150,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 tooltip: 'Aspect Ratio',
                 onSelected: (x) {
                   controller.aspectRatio = x;
+                  setState(() {});
                 },
               ),
             ],
