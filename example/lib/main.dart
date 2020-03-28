@@ -78,6 +78,15 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Image.asset('images/sample.jpg'),
               borderWidth: 2,
               borderColor: Colors.white,
+              foreground: IgnorePointer(
+                child: Container(
+                  alignment: Alignment.bottomRight,
+                  child: Text(
+                    'Foreground Object',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
             ),
           ),
           Row(
@@ -114,10 +123,34 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              IconButton(
+              PopupMenuButton<double>(
                 icon: Icon(Icons.aspect_ratio),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: Text("1:1"),
+                    value: 1,
+                  ),
+                  PopupMenuItem(
+                    child: Text("4:3"),
+                    value: 4.0 / 3.0,
+                  ),
+                  PopupMenuItem(
+                    child: Text("16:9"),
+                    value: 16.0 / 9.0,
+                  ),
+                  PopupMenuItem(
+                    child: Text("3:4"),
+                    value: 3.0 / 4.0,
+                  ),
+                  PopupMenuItem(
+                    child: Text("9:16"),
+                    value: 9.0 / 16.0,
+                  ),
+                ],
                 tooltip: 'Aspect Ratio',
-                onPressed: () {},
+                onSelected: (x) {
+                  controller.aspectRatio = x;
+                },
               ),
             ],
           ),
