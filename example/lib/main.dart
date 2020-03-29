@@ -73,17 +73,24 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: Crop(
-              controller: controller,
-              child: Image.asset('images/sample.jpg'),
-              borderWidth: 2,
-              borderColor: Colors.white,
-              foreground: IgnorePointer(
-                child: Container(
-                  alignment: Alignment.bottomRight,
-                  child: Text(
-                    'Foreground Object',
-                    style: TextStyle(color: Colors.red),
+            child: Container(
+              color: Colors.black,
+              padding: EdgeInsets.all(8),
+              child: Crop(
+                controller: controller,
+                child: Image.asset(
+                  'images/sample.jpg',
+                  fit: BoxFit.cover,
+                ), //It's very important to set fit: BoxFit.cover.
+                borderWidth: 2,
+                borderColor: Colors.white,
+                foreground: IgnorePointer(
+                  child: Container(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      'Foreground Object',
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ),
                 ),
               ),
@@ -132,16 +139,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   PopupMenuDivider(),
                   PopupMenuItem(
-                    child: Text("1:1"),
-                    value: 1,
+                    child: Text("16:9"),
+                    value: 16.0 / 9.0,
                   ),
                   PopupMenuItem(
                     child: Text("4:3"),
                     value: 4.0 / 3.0,
                   ),
                   PopupMenuItem(
-                    child: Text("16:9"),
-                    value: 16.0 / 9.0,
+                    child: Text("1:1"),
+                    value: 1,
                   ),
                   PopupMenuItem(
                     child: Text("3:4"),
