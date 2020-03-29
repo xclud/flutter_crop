@@ -169,74 +169,59 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final sz = Size(constraints.maxWidth, constraints.maxHeight);
-
-        final insets = widget.padding.resolve(Directionality.of(context));
-        final v = insets.left + insets.right;
-        final h = insets.top + insets.bottom;
-        final size = getSizeToFitByRatio(
-          widget.controller._aspectRatio,
-          sz.width - v,
-          sz.height - h,
+    Widget getInCanvas() {
+      final ip = IgnorePointer(
+        key: _key,
+        child: Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..translate(o.dx, o.dy, 0)
+            ..rotateZ(r)
+            ..scale(s, s, 1),
+          child: widget.child,
+        ),
+      );
+      if (widget.foreground == null) {
+        return ip;
+      } else {
+        return Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            ip,
+            widget.foreground,
+          ],
         );
+      }
+    }
 
-        Widget getInCanvas() {
-          final ip = IgnorePointer(
-            key: _key,
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..translate(o.dx, o.dy, 0)
-                ..rotateZ(r)
-                ..scale(s, s, 1),
-              child: widget.child,
+    return ClipRect(
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          CropRenderObjectWidget(
+            aspectRatio: widget.controller._aspectRatio,
+            backgroundColor: widget.backgroundColor,
+            borderColor: widget.borderColor,
+            borderWidth: widget.borderWidth,
+            dimColor: widget.dimColor,
+            child: RepaintBoundary(
+              key: widget.controller._previewKey,
+              child: getInCanvas(),
             ),
-          );
-          if (widget.foreground == null) {
-            return ip;
-          } else {
-            return Stack(
-              fit: StackFit.expand,
-              children: <Widget>[
-                ip,
-                widget.foreground,
-              ],
-            );
-          }
-        }
-
-        return ClipRect(
-          child: Stack(
-            fit: StackFit.expand,
-            children: <Widget>[
-              CropRenderObjectWidget(
-                child: FittedBox(
-                  child: SizedBox.fromSize(
-                    size: size,
-                    child: RepaintBoundary(
-                      key: widget.controller._previewKey,
-                      child: getInCanvas(),
-                    ),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onScaleStart: (details) {
-                  _previousOffset = details.focalPoint;
-                  _previousScale = max(widget.controller._scale, 1);
-                },
-                onScaleUpdate: _onScaleUpdate,
-                onScaleEnd: (details) {
-                  widget.controller._scale = max(widget.controller._scale, 1);
-                  _reCenterImage();
-                },
-              ),
-            ],
           ),
-        );
-      },
+          GestureDetector(
+            onScaleStart: (details) {
+              _previousOffset = details.focalPoint;
+              _previousScale = max(widget.controller._scale, 1);
+            },
+            onScaleUpdate: _onScaleUpdate,
+            onScaleEnd: (details) {
+              widget.controller._scale = max(widget.controller._scale, 1);
+              _reCenterImage();
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -324,12 +309,14 @@ class CropController extends ChangeNotifier {
 }
 
 class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
+  final double aspectRatio;
   final Color dimColor;
   final double borderWidth;
   final Color borderColor;
   final Color backgroundColor;
   CropRenderObjectWidget({
     @required Widget child,
+    @required this.aspectRatio,
     this.borderWidth: 2,
     this.borderColor: Colors.white,
     this.backgroundColor: Colors.black,
@@ -338,6 +325,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return CropRenderObject()
+      ..aspectRatio = aspectRatio
       ..dimColor = dimColor
       ..backgroundColor = backgroundColor
       ..borderColor = borderColor
@@ -346,6 +334,11 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(BuildContext context, CropRenderObject renderObject) {
+    if (renderObject?.aspectRatio != aspectRatio) {
+      renderObject?.aspectRatio = aspectRatio;
+      renderObject.markNeedsLayout();
+    }
+
     renderObject?.dimColor = dimColor;
     renderObject?.borderWidth = borderWidth;
     renderObject?.borderColor = borderColor;
@@ -356,6 +349,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
 
 class CropRenderObject extends RenderBox
     with RenderObjectWithChildMixin<RenderBox> {
+  double aspectRatio;
   Color dimColor;
   double borderWidth;
   Color borderColor;
@@ -369,7 +363,11 @@ class CropRenderObject extends RenderBox
     size = constraints.biggest;
 
     if (child != null) {
-      child.layout(constraints.loosen(), parentUsesSize: true);
+      final forcedSize =
+          getSizeToFitByRatio(aspectRatio, size.width, size.height);
+      child.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
+
+      print(forcedSize);
     }
   }
 
@@ -378,8 +376,11 @@ class CropRenderObject extends RenderBox
       size.width / 2,
       size.height / 2,
     );
+
+    final forcedSize =
+        getSizeToFitByRatio(aspectRatio, size.width, size.height);
     Rect rect = Rect.fromCenter(
-        center: center, width: child.size.width, height: child.size.height);
+        center: center, width: forcedSize.width, height: forcedSize.height);
 
     return Path()
       ..addRect(rect)
@@ -397,10 +398,13 @@ class CropRenderObject extends RenderBox
       context.canvas.drawRect(bounds, Paint()..color = backgroundColor);
     }
 
-    if (child != null) {
-      final Offset tmp = size - child.size;
+    final forcedSize =
+        getSizeToFitByRatio(aspectRatio, size.width, size.height);
 
-      final area = offset + tmp / 2 & child.size;
+    if (child != null) {
+      final Offset tmp = size - forcedSize;
+
+      final area = offset + tmp / 2 & forcedSize;
       context.paintChild(child, offset + tmp / 2);
 
       final clipPath = _getDimClipPath();
@@ -411,7 +415,7 @@ class CropRenderObject extends RenderBox
       });
       if (borderWidth != null && borderWidth > 0 && borderColor != null) {
         context.canvas.drawRect(
-          area,
+          area.deflate(borderWidth / 2),
           Paint()
             ..color = borderColor
             ..strokeWidth = borderWidth
