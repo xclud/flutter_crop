@@ -212,7 +212,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
             fit: StackFit.expand,
             children: <Widget>[
               Container(color: widget.backgroundColor),
-              Dim(
+              CropRenderObjectWidget(
                 child: FittedBox(
                   child: SizedBox.fromSize(
                     size: size,
@@ -324,25 +324,38 @@ class CropController extends ChangeNotifier {
   }
 }
 
-class Dim extends SingleChildRenderObjectWidget {
+class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final Color dimColor;
-  Dim({Widget child, this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8)})
-      : super(child: child);
+  final double borderWidth;
+  final Color borderColor;
+  CropRenderObjectWidget({
+    @required Widget child,
+    this.borderWidth: 2,
+    this.borderColor: Colors.white,
+    this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
+  }) : super(child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return DimRenderObject()..dimColor = dimColor;
+    return CropRenderObject()
+      ..dimColor = dimColor
+      ..borderColor = borderColor
+      ..borderWidth = borderWidth;
   }
 
   @override
-  void updateRenderObject(BuildContext context, DimRenderObject renderObject) {
+  void updateRenderObject(BuildContext context, CropRenderObject renderObject) {
     renderObject?.dimColor = dimColor;
+    renderObject?.borderWidth = borderWidth;
+    renderObject?.borderColor = borderColor;
     super.updateRenderObject(context, renderObject);
   }
 }
 
-class DimRenderObject extends RenderBox
+class CropRenderObject extends RenderBox
     with RenderObjectWithChildMixin<RenderBox> {
   Color dimColor;
+  double borderWidth;
+  Color borderColor;
   @override
   bool hitTestSelf(Offset position) => false;
 
@@ -388,14 +401,15 @@ class DimRenderObject extends RenderBox
           (context, offset) {
         context.canvas.drawRect(bounds, Paint()..color = dimColor);
       });
-
-      context.canvas.drawRect(
-        area,
-        Paint()
-          ..color = Colors.white
-          ..strokeWidth = 2
-          ..style = PaintingStyle.stroke,
-      );
+      if (borderWidth != null && borderWidth > 0 && borderColor != null) {
+        context.canvas.drawRect(
+          area,
+          Paint()
+            ..color = borderColor
+            ..strokeWidth = borderWidth
+            ..style = PaintingStyle.stroke,
+        );
+      }
     }
   }
 }
