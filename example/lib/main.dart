@@ -127,6 +127,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.aspect_ratio),
                 itemBuilder: (context) => [
                   PopupMenuItem(
+                    child: Text("Original"),
+                    value: 1000 / 667.0,
+                  ),
+                  PopupMenuDivider(),
+                  PopupMenuItem(
                     child: Text("1:1"),
                     value: 1,
                   ),
