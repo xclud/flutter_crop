@@ -366,11 +366,11 @@ class CropRenderObject extends RenderBox
   @override
   void performLayout() {
     final BoxConstraints constraints = this.constraints;
+    size = constraints.biggest;
 
     if (child != null) {
       child.layout(constraints.loosen(), parentUsesSize: true);
     }
-    size = constraints.biggest;
   }
 
   Path _getDimClipPath() {
