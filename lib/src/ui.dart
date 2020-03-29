@@ -211,7 +211,6 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
-              Container(color: widget.backgroundColor),
               CropRenderObjectWidget(
                 child: FittedBox(
                   child: SizedBox.fromSize(
@@ -328,16 +327,19 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final Color dimColor;
   final double borderWidth;
   final Color borderColor;
+  final Color backgroundColor;
   CropRenderObjectWidget({
     @required Widget child,
     this.borderWidth: 2,
     this.borderColor: Colors.white,
+    this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
   }) : super(child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
     return CropRenderObject()
       ..dimColor = dimColor
+      ..backgroundColor = backgroundColor
       ..borderColor = borderColor
       ..borderWidth = borderWidth;
   }
@@ -347,6 +349,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     renderObject?.dimColor = dimColor;
     renderObject?.borderWidth = borderWidth;
     renderObject?.borderColor = borderColor;
+    renderObject?.backgroundColor = backgroundColor;
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -356,6 +359,7 @@ class CropRenderObject extends RenderBox
   Color dimColor;
   double borderWidth;
   Color borderColor;
+  Color backgroundColor;
   @override
   bool hitTestSelf(Offset position) => false;
 
@@ -388,6 +392,10 @@ class CropRenderObject extends RenderBox
 
   void paint(PaintingContext context, Offset offset) {
     final bounds = offset & size;
+
+    if (backgroundColor != null) {
+      context.canvas.drawRect(bounds, Paint()..color = backgroundColor);
+    }
 
     if (child != null) {
       final Offset tmp = size - child.size;
