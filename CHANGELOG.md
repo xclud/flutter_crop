@@ -1,4 +1,10 @@
-### [0.2.1] - Fixes a bug when child's aspect-ratio does not match the canvas's aspect ratio.
+### [0.2.2] - 2020/03/30
+- Adds Support for background widget.
+- Layout and Paint more efficiently.
+
+### [0.2.1] - 2020/03/29
+- Fixes a bug when child's aspect-ratio does not match the canvas's aspect ratio.
+
 ### [0.2.0] - Introduced CropController (Breaking Change).
 ### [0.1.3] - Optionally takes pixelRatio for better output quality.
 ### [0.1.2] - Update license file.
