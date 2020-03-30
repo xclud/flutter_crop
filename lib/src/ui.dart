@@ -13,6 +13,7 @@ class Crop extends StatefulWidget {
   final Color borderColor;
   final double borderWidth;
   final CropController controller;
+  final Widget background;
   final Widget foreground;
 
   Crop({
@@ -24,6 +25,7 @@ class Crop extends StatefulWidget {
     this.backgroundColor: Colors.black,
     this.borderColor: Colors.white,
     this.borderWidth: 2,
+    this.background,
     this.foreground,
   }) : super(key: key);
 
@@ -181,15 +183,25 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
           child: widget.child,
         ),
       );
-      if (widget.foreground == null) {
+
+      List<Widget> widgets = [];
+
+      if (widget.background != null) {
+        widgets.add(widget.background);
+      }
+
+      widgets.add(ip);
+
+      if (widget.foreground != null) {
+        widgets.add(widget.foreground);
+      }
+
+      if (widgets.length == 1) {
         return ip;
       } else {
         return Stack(
           fit: StackFit.expand,
-          children: <Widget>[
-            ip,
-            widget.foreground,
-          ],
+          children: widgets,
         );
       }
     }
@@ -324,7 +336,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   }) : super(child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return CropRenderObject()
+    return RenderCrop()
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
       ..backgroundColor = backgroundColor
@@ -333,22 +345,49 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, CropRenderObject renderObject) {
-    if (renderObject?.aspectRatio != aspectRatio) {
-      renderObject?.aspectRatio = aspectRatio;
-      renderObject.markNeedsLayout();
+  void updateRenderObject(BuildContext context, RenderCrop renderObject) {
+    if (renderObject == null) return;
+
+    bool needsPaint = false;
+    bool needsLayout = false;
+
+    if (renderObject.aspectRatio != aspectRatio) {
+      renderObject.aspectRatio = aspectRatio;
+      needsLayout = true;
     }
 
-    renderObject?.dimColor = dimColor;
-    renderObject?.borderWidth = borderWidth;
-    renderObject?.borderColor = borderColor;
-    renderObject?.backgroundColor = backgroundColor;
+    if (renderObject.dimColor != dimColor) {
+      renderObject.dimColor = dimColor;
+      needsPaint = true;
+    }
+
+    if (renderObject.borderWidth != borderWidth) {
+      needsLayout = true;
+      needsPaint = true;
+    }
+
+    if (renderObject.borderColor != borderColor) {
+      renderObject.borderColor = borderColor;
+      needsPaint = true;
+    }
+
+    if (renderObject.backgroundColor != backgroundColor) {
+      renderObject.backgroundColor = backgroundColor;
+      needsPaint = true;
+    }
+
+    if (needsLayout) {
+      renderObject.markNeedsLayout();
+    }
+    if (needsPaint) {
+      renderObject.markNeedsPaint();
+    }
+
     super.updateRenderObject(context, renderObject);
   }
 }
 
-class CropRenderObject extends RenderBox
-    with RenderObjectWithChildMixin<RenderBox> {
+class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   double aspectRatio;
   Color dimColor;
   double borderWidth;
