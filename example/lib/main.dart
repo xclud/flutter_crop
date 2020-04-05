@@ -82,8 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   'images/sample.jpg',
                   fit: BoxFit.cover,
                 ), //It's very important to set fit: BoxFit.cover.
-                borderWidth: 2,
-                borderColor: Colors.white,
                 foreground: IgnorePointer(
                   child: Container(
                     alignment: Alignment.bottomRight,
@@ -91,6 +89,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       'Foreground Object',
                       style: TextStyle(color: Colors.red),
                     ),
+                  ),
+                ),
+                helper: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
                 ),
               ),

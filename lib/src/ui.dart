@@ -10,11 +10,10 @@ class Crop extends StatefulWidget {
   final Color backgroundColor;
   final Color dimColor;
   final EdgeInsetsGeometry padding;
-  final Color borderColor;
-  final double borderWidth;
   final CropController controller;
   final Widget background;
   final Widget foreground;
+  final Widget helper;
 
   Crop({
     Key key,
@@ -23,10 +22,9 @@ class Crop extends StatefulWidget {
     this.padding: const EdgeInsets.all(8),
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
     this.backgroundColor: Colors.black,
-    this.borderColor: Colors.white,
-    this.borderWidth: 2,
     this.background,
     this.foreground,
+    this.helper,
   }) : super(key: key);
 
   @override
@@ -38,8 +36,6 @@ class Crop extends StatefulWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<EdgeInsets>('padding', padding));
-    properties.add(DoubleProperty('borderWidth', borderWidth));
-    properties.add(ColorProperty('borderColor', borderColor));
     properties.add(ColorProperty('dimColor', dimColor));
     properties.add(DiagnosticsProperty('child', child));
     properties.add(DiagnosticsProperty('foreground', foreground));
@@ -206,6 +202,22 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       }
     }
 
+    Widget getRepaintBoundary() {
+      final repaint = RepaintBoundary(
+        key: widget.controller._previewKey,
+        child: getInCanvas(),
+      );
+
+      if (widget.helper == null) {
+        return repaint;
+      }
+
+      return Stack(
+        fit: StackFit.expand,
+        children: [repaint, widget.helper],
+      );
+    }
+
     return ClipRect(
       child: Stack(
         fit: StackFit.expand,
@@ -213,13 +225,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
           CropRenderObjectWidget(
             aspectRatio: widget.controller._aspectRatio,
             backgroundColor: widget.backgroundColor,
-            borderColor: widget.borderColor,
-            borderWidth: widget.borderWidth,
             dimColor: widget.dimColor,
-            child: RepaintBoundary(
-              key: widget.controller._previewKey,
-              child: getInCanvas(),
-            ),
+            child: getRepaintBoundary(),
           ),
           GestureDetector(
             onScaleStart: (details) {
@@ -323,14 +330,10 @@ class CropController extends ChangeNotifier {
 class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final double aspectRatio;
   final Color dimColor;
-  final double borderWidth;
-  final Color borderColor;
   final Color backgroundColor;
   CropRenderObjectWidget({
     @required Widget child,
     @required this.aspectRatio,
-    this.borderWidth: 2,
-    this.borderColor: Colors.white,
     this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
   }) : super(child: child);
@@ -339,9 +342,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     return RenderCrop()
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
-      ..backgroundColor = backgroundColor
-      ..borderColor = borderColor
-      ..borderWidth = borderWidth;
+      ..backgroundColor = backgroundColor;
   }
 
   @override
@@ -358,16 +359,6 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
 
     if (renderObject.dimColor != dimColor) {
       renderObject.dimColor = dimColor;
-      needsPaint = true;
-    }
-
-    if (renderObject.borderWidth != borderWidth) {
-      needsLayout = true;
-      needsPaint = true;
-    }
-
-    if (renderObject.borderColor != borderColor) {
-      renderObject.borderColor = borderColor;
       needsPaint = true;
     }
 
@@ -390,8 +381,6 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
 class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   double aspectRatio;
   Color dimColor;
-  double borderWidth;
-  Color borderColor;
   Color backgroundColor;
   @override
   bool hitTestSelf(Offset position) => false;
@@ -442,25 +431,19 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
 
     if (child != null) {
       final Offset tmp = size - forcedSize;
-
-      final area = offset + tmp / 2 & forcedSize;
       context.paintChild(child, offset + tmp / 2);
 
       final clipPath = _getDimClipPath();
 
-      context.pushClipPath(needsCompositing, offset, bounds, clipPath,
-          (context, offset) {
-        context.canvas.drawRect(bounds, Paint()..color = dimColor);
-      });
-      if (borderWidth != null && borderWidth > 0 && borderColor != null) {
-        context.canvas.drawRect(
-          area.deflate(borderWidth / 2),
-          Paint()
-            ..color = borderColor
-            ..strokeWidth = borderWidth
-            ..style = PaintingStyle.stroke,
-        );
-      }
+      context.pushClipPath(
+        needsCompositing,
+        offset,
+        bounds,
+        clipPath,
+        (context, offset) {
+          context.canvas.drawRect(bounds, Paint()..color = dimColor);
+        },
+      );
     }
   }
 }
