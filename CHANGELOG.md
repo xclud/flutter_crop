@@ -1,3 +1,7 @@
+### [0.3.0] - 2020/04/05
+- Introduces `helper` parameter.
+- Ditches `borderWidth` and `borderColor` parameters in favor of the new `helper` parameter (Breaking Change). You should see the example project to figure out how to bring borders back to your UI.
+
 ### [0.2.2] - 2020/03/30
 - Adds Support for background widget.
 - Layout and Paint more efficiently.
