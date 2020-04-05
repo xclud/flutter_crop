@@ -7,13 +7,14 @@ import 'package:flutter/rendering.dart';
 
 class Crop extends StatefulWidget {
   final Widget child;
+  final CropController controller;
   final Color backgroundColor;
   final Color dimColor;
   final EdgeInsetsGeometry padding;
-  final CropController controller;
   final Widget background;
   final Widget foreground;
   final Widget helper;
+  final Widget overlay;
 
   Crop({
     Key key,
@@ -25,6 +26,7 @@ class Crop extends StatefulWidget {
     this.background,
     this.foreground,
     this.helper,
+    this.overlay,
   }) : super(key: key);
 
   @override
@@ -38,7 +40,11 @@ class Crop extends StatefulWidget {
     properties.add(DiagnosticsProperty<EdgeInsets>('padding', padding));
     properties.add(ColorProperty('dimColor', dimColor));
     properties.add(DiagnosticsProperty('child', child));
+    properties.add(DiagnosticsProperty('controller', controller));
+    properties.add(DiagnosticsProperty('background', background));
     properties.add(DiagnosticsProperty('foreground', foreground));
+    properties.add(DiagnosticsProperty('helper', helper));
+    properties.add(DiagnosticsProperty('overlay', overlay));
   }
 }
 
@@ -218,6 +224,19 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       );
     }
 
+    final overlay = widget.overlay ??
+        GestureDetector(
+          onScaleStart: (details) {
+            _previousOffset = details.focalPoint;
+            _previousScale = max(widget.controller._scale, 1);
+          },
+          onScaleUpdate: _onScaleUpdate,
+          onScaleEnd: (details) {
+            widget.controller._scale = max(widget.controller._scale, 1);
+            _reCenterImage();
+          },
+        );
+
     return ClipRect(
       child: Stack(
         fit: StackFit.expand,
@@ -228,17 +247,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
             dimColor: widget.dimColor,
             child: getRepaintBoundary(),
           ),
-          GestureDetector(
-            onScaleStart: (details) {
-              _previousOffset = details.focalPoint;
-              _previousScale = max(widget.controller._scale, 1);
-            },
-            onScaleUpdate: _onScaleUpdate,
-            onScaleEnd: (details) {
-              widget.controller._scale = max(widget.controller._scale, 1);
-              _reCenterImage();
-            },
-          ),
+          overlay,
         ],
       ),
     );
