@@ -34,23 +34,47 @@ class RotatedRect {
   }
 }
 
-//Compute the distance from AB to C
-//if isSegment is true, AB is a segment, not a line.
-vm.Vector2 _line(vm.Vector2 pointA, vm.Vector2 pointB, vm.Vector2 pointC) {
-  final lineDir = (pointB - pointA).normalized();
-  var v = pointC - pointA;
-  var d = v.dot(lineDir);
-  return pointA + lineDir * d;
+/// Normalize
+Offset _normalize(Offset o) {
+  final double l = o.distance;
+  if (l == 0.0) {
+    return o;
+  }
+  final double d = 1.0 / l;
+  return Offset(o.dx * d, o.dy * d);
 }
 
-Offset line(Offset a, Offset b, Offset p) {
-  final d = _line(
-    vm.Vector2(a.dx, a.dy),
-    vm.Vector2(b.dx, b.dy),
-    vm.Vector2(p.dx, p.dy),
-  );
+/// Inner product.
+double _dot(Offset a, Offset b) {
+  return a.dx * b.dx + a.dy * b.dy;
+}
 
-  return Offset(d.x, d.y);
+// //Compute the distance from AB to C
+// //if isSegment is true, AB is a segment, not a line.
+// vm.Vector2 _line(vm.Vector2 pointA, vm.Vector2 pointB, vm.Vector2 pointC) {
+//   final lineDir = (pointB - pointA).normalized();
+//   var v = pointC - pointA;
+//   var d = v.dot(lineDir);
+//   return pointA + lineDir * d;
+// }
+
+// Offset line(Offset a, Offset b, Offset p) {
+//   final d = _line(
+//     vm.Vector2(a.dx, a.dy),
+//     vm.Vector2(b.dx, b.dy),
+//     vm.Vector2(p.dx, p.dy),
+//   );
+
+//   return Offset(d.x, d.y);
+// }
+
+/// Compute the distance from AB to C
+/// if isSegment is true, AB is a segment, not a line.
+Offset line(Offset pointA, Offset pointB, Offset pointC) {
+  final lineDir = _normalize(pointB - pointA);
+  var v = pointC - pointA;
+  var d = _dot(v, lineDir);
+  return pointA + Offset(lineDir.dx * d, lineDir.dy * d);
 }
 
 double _side(vm.Vector2 a, vm.Vector2 b, vm.Vector2 p) {
@@ -112,6 +136,8 @@ RotatedRect getRotated(
     Rect rect, double rotation, double scale, Offset offset) {
   final r = rotation / 180.0 * pi;
 
+  rotation %= 360;
+
   final c = rect.center;
   final mat = Matrix4.identity()
     ..translate(offset.dx, offset.dy, 0)
@@ -129,9 +155,34 @@ RotatedRect getRotated(
   final bottomLeft = _rot(rect.bottomLeft - c) + c;
   final bottomRight = _rot(rect.bottomRight - c) + c;
 
-  return RotatedRect(
-      topLeft: topLeft,
-      topRight: topRight,
-      bottomLeft: bottomLeft,
-      bottomRight: bottomRight);
+  if (rotation <= 90) {
+    return RotatedRect(
+        topLeft: topLeft,
+        topRight: topRight,
+        bottomLeft: bottomLeft,
+        bottomRight: bottomRight);
+  }
+  if (rotation <= 180) {
+    return RotatedRect(
+        bottomLeft: bottomRight,
+        topLeft: bottomLeft,
+        topRight: topLeft,
+        bottomRight: topRight);
+  }
+
+  if (rotation <= 270) {
+    return RotatedRect(
+        bottomLeft: topRight,
+        topLeft: bottomRight,
+        topRight: bottomLeft,
+        bottomRight: topLeft);
+  }
+
+  //if (rotation <= 270) {
+    return RotatedRect(
+        topLeft: topRight,
+        topRight: bottomRight,
+        bottomLeft: topLeft,
+        bottomRight: bottomLeft);
+  //}
 }

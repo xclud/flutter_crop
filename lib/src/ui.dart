@@ -87,64 +87,33 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
-    if (widget.controller._rotation < 0) {
-      final tl = line(image.topRight, image.topLeft, canvas.topLeft);
-      final tr = line(image.bottomRight, image.topRight, canvas.topRight);
-      final br = line(image.bottomLeft, image.bottomRight, canvas.bottomRight);
-      final bl = line(image.topLeft, image.bottomLeft, canvas.bottomLeft);
+    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final tr = line(image.topLeft, image.topRight, canvas.topRight);
+    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
+    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
 
-      final dtl = side(image.topRight, image.topLeft, canvas.topLeft);
-      final dtr = side(image.bottomRight, image.topRight, canvas.topRight);
-      final dbr = side(image.bottomLeft, image.bottomRight, canvas.bottomRight);
-      final dbl = side(image.topLeft, image.bottomLeft, canvas.bottomLeft);
+    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
+    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
+    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
 
-      if (dtl > 0) {
-        final d = canvas.topLeft - tl;
-        _endOffset += d;
-      }
+    if (dtl > 0) {
+      final d = canvas.topLeft - tl;
+      _endOffset += d;
+    }
 
-      if (dtr > 0) {
-        final d = canvas.topRight - tr;
-        _endOffset += d;
-      }
+    if (dtr > 0) {
+      final d = canvas.topRight - tr;
+      _endOffset += d;
+    }
 
-      if (dbr > 0) {
-        final d = canvas.bottomRight - br;
-        _endOffset += d;
-      }
-      if (dbl > 0) {
-        final d = canvas.bottomLeft - bl;
-        _endOffset += d;
-      }
-    } else {
-      final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-      final tr = line(image.topLeft, image.topRight, canvas.topRight);
-      final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-      final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-      final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-      final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-      final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-      final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-      if (dtl > 0) {
-        final d = canvas.topLeft - tl;
-        _endOffset += d;
-      }
-
-      if (dtr > 0) {
-        final d = canvas.topRight - tr;
-        _endOffset += d;
-      }
-
-      if (dbr > 0) {
-        final d = canvas.bottomRight - br;
-        _endOffset += d;
-      }
-      if (dbl > 0) {
-        final d = canvas.bottomLeft - bl;
-        _endOffset += d;
-      }
+    if (dbr > 0) {
+      final d = canvas.bottomRight - br;
+      _endOffset += d;
+    }
+    if (dbl > 0) {
+      final d = canvas.bottomLeft - bl;
+      _endOffset += d;
     }
 
     widget.controller._offset = _endOffset;
@@ -308,16 +277,20 @@ class CropController extends ChangeNotifier {
   }
 
   double _getMinScale() {
-    final r = _rotation / 180.0 * pi;
+    final r = (_rotation % 360) / 180.0 * pi;
     final rabs = r.abs();
 
-    final sinr = sin(rabs);
-    final cosr = cos(rabs);
+    final sinr = sin(rabs).abs();
+    final cosr = cos(rabs).abs();
 
     final x = cosr * _aspectRatio + sinr;
     final y = sinr * _aspectRatio + cosr;
 
-    return max(x / _aspectRatio, y);
+    final m = max(x / _aspectRatio, y);
+
+    print(m);
+
+    return m;
   }
 
   /// Capture an image of the current state of this widget and its children.
@@ -403,8 +376,6 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       final forcedSize =
           getSizeToFitByRatio(aspectRatio, size.width, size.height);
       child.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
-
-      print(forcedSize);
     }
   }
 
