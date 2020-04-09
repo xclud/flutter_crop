@@ -119,10 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     trackShape: CenteredRectangularSliderTrackShape(),
                   ),
                   child: Slider(
-                    divisions: 91,
+                    divisions: 361,
                     value: _rotation,
-                    min: -45,
-                    max: 45,
+                    min: -180,
+                    max: 180,
                     label: '$_rotation°',
                     onChanged: (n) {
                       setState(() {
