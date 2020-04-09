@@ -15,6 +15,7 @@ class Crop extends StatefulWidget {
   final Widget foreground;
   final Widget helper;
   final Widget overlay;
+  final bool interactive;
 
   Crop({
     Key key,
@@ -27,6 +28,7 @@ class Crop extends StatefulWidget {
     this.foreground,
     this.helper,
     this.overlay,
+    this.interactive: true,
   }) : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class Crop extends StatefulWidget {
     properties.add(DiagnosticsProperty('foreground', foreground));
     properties.add(DiagnosticsProperty('helper', helper));
     properties.add(DiagnosticsProperty('overlay', overlay));
+    properties.add(FlagProperty('interactive', value: interactive));
   }
 }
 
@@ -193,31 +196,40 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       );
     }
 
-    final overlay = widget.overlay ??
-        GestureDetector(
-          onScaleStart: (details) {
-            _previousOffset = details.focalPoint;
-            _previousScale = max(widget.controller._scale, 1);
-          },
-          onScaleUpdate: _onScaleUpdate,
-          onScaleEnd: (details) {
-            widget.controller._scale = max(widget.controller._scale, 1);
-            _reCenterImage();
-          },
-        );
+    final overlay = widget.overlay;
+    final gd = GestureDetector(
+      onScaleStart: (details) {
+        _previousOffset = details.focalPoint;
+        _previousScale = max(widget.controller._scale, 1);
+      },
+      onScaleUpdate: _onScaleUpdate,
+      onScaleEnd: (details) {
+        widget.controller._scale = max(widget.controller._scale, 1);
+        _reCenterImage();
+      },
+    );
+
+    List<Widget> over = [
+      CropRenderObjectWidget(
+        aspectRatio: widget.controller._aspectRatio,
+        backgroundColor: widget.backgroundColor,
+        dimColor: widget.dimColor,
+        child: getRepaintBoundary(),
+      ),
+    ];
+
+    if (widget.overlay != null) {
+      over.add(widget.overlay);
+    }
+
+    if (widget.interactive) {
+      over.add(gd);
+    }
 
     return ClipRect(
       child: Stack(
         fit: StackFit.expand,
-        children: <Widget>[
-          CropRenderObjectWidget(
-            aspectRatio: widget.controller._aspectRatio,
-            backgroundColor: widget.backgroundColor,
-            dimColor: widget.dimColor,
-            child: getRepaintBoundary(),
-          ),
-          overlay,
-        ],
+        children: over,
       ),
     );
   }
