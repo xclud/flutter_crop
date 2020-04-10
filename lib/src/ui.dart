@@ -195,8 +195,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         children: [repaint, widget.helper],
       );
     }
-
-    final overlay = widget.overlay;
+    
     final gd = GestureDetector(
       onScaleStart: (details) {
         _previousOffset = details.focalPoint;
@@ -299,8 +298,6 @@ class CropController extends ChangeNotifier {
     final y = sinr * _aspectRatio + cosr;
 
     final m = max(x / _aspectRatio, y);
-
-    print(m);
 
     return m;
   }
