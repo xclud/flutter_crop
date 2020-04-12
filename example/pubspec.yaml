@@ -23,6 +23,8 @@ dependencies:
     path: ../
   url_launcher: ^5.4.2
   flutter_icons: ^1.0.0+1
+  image_gallery_saver: ^1.2.2
+  permission_handler: ^5.0.0+hotfix.3
 
 dev_dependencies:
   flutter_test:

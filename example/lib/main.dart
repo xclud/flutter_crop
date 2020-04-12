@@ -1,8 +1,11 @@
+import 'dart:ui' as ui;
 import 'package:app/centered_slider_track_shape.dart';
 import 'package:flutter/material.dart';
 import 'package:crop/crop.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(MyApp());
 
@@ -37,6 +40,24 @@ class _MyHomePageState extends State<MyHomePage> {
           appBar: AppBar(
             title: Text('Crop Result'),
             centerTitle: true,
+            actions: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.save),
+                  onPressed: () async {
+                    final status = await Permission.storage.request();
+                    if (status == PermissionStatus.granted) {
+                      await _saveScreenShot(cropped);
+                      Scaffold.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Saved to gallery.'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
           body: Center(
             child: RawImage(
@@ -174,4 +195,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+Future<dynamic> _saveScreenShot(ui.Image img) async {
+  var byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+  var buffer = byteData.buffer.asUint8List();
+  final result = await ImageGallerySaver.saveImage(buffer);
+  print(result);
+
+  return result;
 }
