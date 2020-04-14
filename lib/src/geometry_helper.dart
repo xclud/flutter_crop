@@ -178,11 +178,9 @@ RotatedRect getRotated(
         bottomRight: topLeft);
   }
 
-  //if (rotation <= 270) {
-    return RotatedRect(
-        topLeft: topRight,
-        topRight: bottomRight,
-        bottomLeft: topLeft,
-        bottomRight: bottomLeft);
-  //}
+  return RotatedRect(
+      topLeft: topRight,
+      topRight: bottomRight,
+      bottomLeft: topLeft,
+      bottomRight: bottomLeft);
 }

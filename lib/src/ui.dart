@@ -195,7 +195,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         children: [repaint, widget.helper],
       );
     }
-    
+
     final gd = GestureDetector(
       onScaleStart: (details) {
         _previousOffset = details.focalPoint;
