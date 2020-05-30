@@ -28,8 +28,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final controller = CropController(aspectRatio: 1000 / 667.0);
+  var controller;
   double _rotation = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = CropController(
+        aspectRatio: 1000 / 667.0,
+        updatedCallback: () {
+          setState(() {
+            _rotation = controller.rotation;
+          });
+        });
+  }
+
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
@@ -126,11 +140,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.undo),
                 tooltip: 'Undo',
                 onPressed: () {
-                  controller.rotation = 0;
-                  controller.scale = 1;
-                  controller.offset = Offset.zero;
                   setState(() {
-                    _rotation = 0;
+                    controller.rotation = 0.0;
+                    controller.scale = 1;
+                    controller.offset = Offset.zero;
                   });
                 },
               ),
@@ -142,8 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Slider(
                     divisions: 361,
                     value: _rotation,
-                    min: -180,
-                    max: 180,
+                    min: -360,
+                    max: 360,
                     label: '$_rotation°',
                     onChanged: (n) {
                       setState(() {

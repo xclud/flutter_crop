@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:crop/src/geometry_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:vector_math/vector_math_64.dart' as math;
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -85,8 +86,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final w = sz.width;
     final h = sz.height;
     final canvas = Rect.fromLTWH(0, 0, w, h);
-    final image = getRotated(
-        canvas, widget.controller._rotation, s, widget.controller._offset);
+    final image = getRotated(canvas, widget.controller._rotationInRadians, s,
+        widget.controller._offset);
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
@@ -135,13 +136,17 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller._scale = _previousScale * details.scale;
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
+    widget.controller.rotationInRadians = details.rotation;
 
     setState(() {});
+
+    if (widget.controller._updatedCallback != null) {
+      widget.controller._updatedCallback();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final r = widget.controller._rotation / 180.0 * pi;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value);
 
@@ -152,7 +157,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
           alignment: Alignment.center,
           transform: Matrix4.identity()
             ..translate(o.dx, o.dy, 0)
-            ..rotateZ(r)
+            ..rotateZ(widget.controller.rotationInRadians)
             ..scale(s, s, 1),
           child: widget.child,
         ),
@@ -244,9 +249,10 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 class CropController extends ChangeNotifier {
   final _previewKey = GlobalKey();
   double _aspectRatio = 1;
-  double _rotation = 0;
+  double _rotationInRadians = 0;
   double _scale = 1;
   Offset _offset = Offset.zero;
+  VoidCallback _updatedCallback;
 
   double get aspectRatio => _aspectRatio;
   set aspectRatio(double value) {
@@ -260,9 +266,15 @@ class CropController extends ChangeNotifier {
     notifyListeners();
   }
 
-  double get rotation => _rotation;
-  set rotation(double value) {
-    _rotation = value;
+  double get rotation => math.degrees(_rotationInRadians);
+  set rotation(double degreeVal) {
+    _rotationInRadians = math.radians(degreeVal);
+    notifyListeners();
+  }
+
+  double get rotationInRadians => _rotationInRadians;
+  set rotationInRadians(double radianVal) {
+    _rotationInRadians = radianVal;
     notifyListeners();
   }
 
@@ -274,21 +286,22 @@ class CropController extends ChangeNotifier {
 
   Matrix4 get transform => Matrix4.identity()
     ..translate(_offset.dx, _offset.dy, 0)
-    ..rotateZ(_rotation)
+    ..rotateZ(_rotationInRadians)
     ..scale(_scale, _scale, 1);
 
-  CropController({
-    double aspectRatio: 1.0,
-    double scale: 1.0,
-    double rotation: 0,
-  }) {
+  CropController(
+      {double aspectRatio: 1.0,
+      double scale: 1.0,
+      double rotation: 0,
+      VoidCallback updatedCallback}) {
     _aspectRatio = aspectRatio;
     _scale = scale;
-    _rotation = rotation;
+    _rotationInRadians = rotation;
+    _updatedCallback = updatedCallback;
   }
 
   double _getMinScale() {
-    final r = (_rotation % 360) / 180.0 * pi;
+    final r = (_rotationInRadians % 360) / 180.0 * pi;
     final rabs = r.abs();
 
     final sinr = sin(rabs).abs();
