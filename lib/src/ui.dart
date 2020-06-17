@@ -74,6 +74,9 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
     _animation = CurvedAnimation(curve: Curves.easeInOut, parent: _controller);
     _animation.addListener(() {
+      if (_animation.isCompleted) {
+        _reCenterImageNoAnimation();
+      }
       setState(() {});
     });
     super.initState();
@@ -125,6 +128,52 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       _controller.reset();
     }
     _controller.forward();
+
+    setState(() {});
+  }
+
+  void _reCenterImageNoAnimation() {
+    final sz = _key.currentContext.size;
+    final s = widget.controller._scale * widget.controller._getMinScale();
+    final w = sz.width;
+    final h = sz.height;
+    final canvas = Rect.fromLTWH(0, 0, w, h);
+    final image = getRotated(
+        canvas, widget.controller._rotation, s, widget.controller._offset);
+    _startOffset = widget.controller._offset;
+    _endOffset = widget.controller._offset;
+
+    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final tr = line(image.topLeft, image.topRight, canvas.topRight);
+    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
+    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
+    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
+    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    if (dtl > 0) {
+      final d = canvas.topLeft - tl;
+      _endOffset += d;
+    }
+
+    if (dtr > 0) {
+      final d = canvas.topRight - tr;
+      _endOffset += d;
+    }
+
+    if (dbr > 0) {
+      final d = canvas.bottomRight - br;
+      _endOffset += d;
+    }
+    if (dbl > 0) {
+      final d = canvas.bottomLeft - bl;
+      _endOffset += d;
+    }
+
+    _startOffset = _endOffset;
+    widget.controller._offset = _endOffset;
 
     setState(() {});
   }
