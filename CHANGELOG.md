@@ -1,3 +1,6 @@
+### [0.3.2] - 2020/06/17
+- Fixes an issue causing the image go off-canvas off-canvas when playing aspect-ratio and panning.
+
 ### [0.3.1] - 2020/04/09
 - Fixes a bug when the rotation is more than 90 degrees (or less than -90).
 - Updated the example project to let the rotation slider move between -180 and +180 degrees.
