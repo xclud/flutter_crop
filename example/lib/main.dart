@@ -30,6 +30,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final controller = CropController(aspectRatio: 1000 / 667.0);
   double _rotation = 0;
+  CropShape shape = CropShape.box;
+
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
@@ -99,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.all(8),
               child: Crop(
                 controller: controller,
+                shape: shape,
                 child: Image.asset(
                   'images/sample.jpg',
                   fit: BoxFit.cover,
@@ -112,11 +115,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                helper: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                ),
+                helper: shape == CropShape.box
+                    ? Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      )
+                    : null,
               ),
             ),
           ),
@@ -153,6 +158,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                 ),
+              ),
+              PopupMenuButton<CropShape>(
+                icon: Icon(Icons.crop_free),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: Text("Box"),
+                    value: CropShape.box,
+                  ),
+                  PopupMenuItem(
+                    child: Text("Oval"),
+                    value: CropShape.oval,
+                  ),
+                ],
+                tooltip: 'Crop Shape',
+                onSelected: (x) {
+                  setState(() {
+                    shape = x;
+                  });
+                },
               ),
               PopupMenuButton<double>(
                 icon: Icon(Icons.aspect_ratio),

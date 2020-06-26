@@ -1,3 +1,7 @@
+### [0.4.0] - 2020/06/26
+- Adds support for Oval crop area. Special thanks to @songfei for his contribution and inspiration.
+- Example project updated with a crop shape selector.
+
 ### [0.3.2] - 2020/06/17
 - Fixes an issue causing the image go off-canvas when playing with aspect-ratio and panning.
 
