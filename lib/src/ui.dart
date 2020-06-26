@@ -1,9 +1,14 @@
-import 'dart:ui' as ui;
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:crop/src/geometry_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+enum Clipper {
+  box,
+  oval,
+}
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -16,6 +21,7 @@ class Crop extends StatefulWidget {
   final Widget helper;
   final Widget overlay;
   final bool interactive;
+  final Clipper clipper;
 
   Crop({
     Key key,
@@ -29,6 +35,7 @@ class Crop extends StatefulWidget {
     this.helper,
     this.overlay,
     this.interactive: true,
+    this.clipper: Clipper.box,
   }) : super(key: key);
 
   @override
@@ -262,6 +269,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         aspectRatio: widget.controller._aspectRatio,
         backgroundColor: widget.backgroundColor,
         dimColor: widget.dimColor,
+        clipper: widget.clipper,
         child: getRepaintBoundary(),
       ),
     ];
@@ -371,17 +379,20 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final double aspectRatio;
   final Color dimColor;
   final Color backgroundColor;
+  final Clipper clipper;
   CropRenderObjectWidget({
     @required Widget child,
     @required this.aspectRatio,
     this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
+    this.clipper: Clipper.box,
   }) : super(child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
+      ..clipper = clipper
       ..backgroundColor = backgroundColor;
   }
 
@@ -422,6 +433,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   double aspectRatio;
   Color dimColor;
   Color backgroundColor;
+  Clipper clipper;
   @override
   bool hitTestSelf(Offset position) => false;
 
@@ -448,10 +460,15 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     Rect rect = Rect.fromCenter(
         center: center, width: forcedSize.width, height: forcedSize.height);
 
-    return Path()
-      ..addRect(rect)
-      ..addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height))
-      ..fillType = PathFillType.evenOdd;
+    Path path = Path();
+    if (clipper == Clipper.oval) {
+      path.addOval(rect);
+    } else if (clipper == Clipper.box) {
+      path.addRect(rect);
+    }
+    path.addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height));
+    path.fillType = PathFillType.evenOdd;
+    return path;
   }
 
   @override
