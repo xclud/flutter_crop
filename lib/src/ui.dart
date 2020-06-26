@@ -5,7 +5,7 @@ import 'package:crop/src/geometry_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-enum Clipper {
+enum CropShape {
   box,
   oval,
 }
@@ -21,7 +21,7 @@ class Crop extends StatefulWidget {
   final Widget helper;
   final Widget overlay;
   final bool interactive;
-  final Clipper clipper;
+  final CropShape shape;
 
   Crop({
     Key key,
@@ -35,7 +35,7 @@ class Crop extends StatefulWidget {
     this.helper,
     this.overlay,
     this.interactive: true,
-    this.clipper: Clipper.box,
+    this.shape: CropShape.box,
   }) : super(key: key);
 
   @override
@@ -269,7 +269,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         aspectRatio: widget.controller._aspectRatio,
         backgroundColor: widget.backgroundColor,
         dimColor: widget.dimColor,
-        clipper: widget.clipper,
+        shape: widget.shape,
         child: getRepaintBoundary(),
       ),
     ];
@@ -379,20 +379,20 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final double aspectRatio;
   final Color dimColor;
   final Color backgroundColor;
-  final Clipper clipper;
+  final CropShape shape;
   CropRenderObjectWidget({
     @required Widget child,
     @required this.aspectRatio,
     this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
-    this.clipper: Clipper.box,
+    this.shape: CropShape.box,
   }) : super(child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
-      ..clipper = clipper
+      ..shape = shape
       ..backgroundColor = backgroundColor;
   }
 
@@ -433,7 +433,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   double aspectRatio;
   Color dimColor;
   Color backgroundColor;
-  Clipper clipper;
+  CropShape shape;
   @override
   bool hitTestSelf(Offset position) => false;
 
@@ -461,9 +461,9 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
         center: center, width: forcedSize.width, height: forcedSize.height);
 
     Path path = Path();
-    if (clipper == Clipper.oval) {
+    if (shape == CropShape.oval) {
       path.addOval(rect);
-    } else if (clipper == Clipper.box) {
+    } else if (shape == CropShape.box) {
       path.addRect(rect);
     }
     path.addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height));
