@@ -105,7 +105,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Image.asset(
                   'images/sample.jpg',
                   fit: BoxFit.cover,
-                ), //It's very important to set fit: BoxFit.cover.
+                ),
+                /* It's very important to set `fit: BoxFit.cover`.
+                   Do NOT remove this line.
+                   There are a lot of issues on github repo by people who remove this line and their image is not shown correctly.
+                */
                 foreground: IgnorePointer(
                   child: Container(
                     alignment: Alignment.bottomRight,
