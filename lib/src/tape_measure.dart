@@ -31,8 +31,8 @@ class TapeMeasureSlider extends StatefulWidget {
         assert(smallTickEvery != null),
         assert(bigTickEvery != null),
         assert(mainTickEvery != null),
-        assert(bigTickEvery > smallTickEvery && bigTickEvery % smallTickEvery == 0),
-        assert(mainTickEvery >= bigTickEvery && mainTickEvery % bigTickEvery == 0),
+        assert(bigTickEvery > smallTickEvery && bigTickEvery % smallTickEvery == 0, 'bigTickEvery not divisible by smallTickEvery'),
+        assert(mainTickEvery >= bigTickEvery && mainTickEvery % bigTickEvery == 0, 'mainTickEvery not divisible by bigTickEvery'),
         super(key: key);
 
   @override
