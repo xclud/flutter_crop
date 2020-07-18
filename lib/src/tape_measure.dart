@@ -218,10 +218,10 @@ class _TapeMeasureThumb extends SliderComponentShape {
       Radius.circular(thumbRadius),
     );
     final paint = Paint()
-      ..color = Colors.white
+      ..color = sliderTheme.thumbColor
       ..style = PaintingStyle.fill;
 
-    TextSpan span = TextSpan(style: TextStyle(fontSize: thumbHeight * 0.5, fontWeight: FontWeight.w700, color: sliderTheme.thumbColor, height: 0.9), text: '${getValue(value)}');
+    TextSpan span = TextSpan(style: TextStyle(fontSize: thumbHeight * 0.5, fontWeight: FontWeight.w700, color: Colors.white, height: 0.9), text: '${getValue(value)}');
     TextPainter tp = TextPainter(text: span, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
     tp.layout();
     Offset textCenter = Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
