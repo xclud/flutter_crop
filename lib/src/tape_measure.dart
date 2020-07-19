@@ -21,8 +21,9 @@ class TapeMeasureSlider extends StatefulWidget {
   final int smallTickEvery;
   final int bigTickEvery;
   final int mainTickEvery;
+  final int mainSnapDistance;
 
-  const TapeMeasureSlider({Key key, @required this.value, this.activeColor, this.tickColor, this.onChanged, @required this.divisions, @required this.min, @required this.max, @required this.smallTickEvery, @required this.bigTickEvery, @required this.mainTickEvery})
+  const TapeMeasureSlider({Key key, @required this.value, this.activeColor, this.tickColor, this.onChanged, @required this.divisions, @required this.min, @required this.max, @required this.smallTickEvery, @required this.bigTickEvery, @required this.mainTickEvery, this.mainSnapDistance})
       : assert(value != null),
         assert(divisions > 0),
         assert(min != null),
@@ -343,6 +344,7 @@ class _SliderRenderObjectWidget extends LeafRenderObjectWidget {
   final double value;
   final int divisions;
   final int mainTickEvery;
+  final int mainSnapDistance;
   final String label;
   final SliderThemeData sliderTheme;
   final double textScaleFactor;
@@ -355,13 +357,14 @@ class _SliderRenderObjectWidget extends LeafRenderObjectWidget {
   final bool hasFocus;
   final bool hovering;
 
-  const _SliderRenderObjectWidget({Key key, this.value, this.divisions, this.mainTickEvery, this.label, this.sliderTheme, this.textScaleFactor, this.screenSize, this.onChanged, this.onChangeStart, this.onChangeEnd, this.state, this.semanticFormatterCallback, this.hasFocus, this.hovering}) : super(key: key);
+  const _SliderRenderObjectWidget({Key key, this.value, this.divisions, this.mainTickEvery, this.mainSnapDistance, this.label, this.sliderTheme, this.textScaleFactor, this.screenSize, this.onChanged, this.onChangeStart, this.onChangeEnd, this.state, this.semanticFormatterCallback, this.hasFocus, this.hovering}) : super(key: key);
 
   @override
   _RenderSlider createRenderObject(BuildContext context) => _RenderSlider(
         value: value,
         divisions: divisions,
         mainTickEvery: mainTickEvery,
+        mainSnapDistance: mainSnapDistance,
         label: label,
         sliderTheme: sliderTheme,
         textScaleFactor: textScaleFactor,
@@ -381,6 +384,7 @@ class _SliderRenderObjectWidget extends LeafRenderObjectWidget {
       ..value = value
       ..divisions = divisions
       ..mainTickEvery = mainTickEvery
+      ..mainSnapDistance = mainSnapDistance
       ..label = label
       ..sliderTheme = sliderTheme
       ..theme = Theme.of(context)
@@ -400,6 +404,7 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
     @required double value,
     int divisions,
     int mainTickEvery,
+    int mainSnapDistance,
     String label,
     SliderThemeData sliderTheme,
     double textScaleFactor,
@@ -420,6 +425,7 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
         _value = value,
         _divisions = divisions,
         _mainTickEvery = mainTickEvery,
+        _mainSnapDistance = mainSnapDistance,
         _sliderTheme = sliderTheme,
         _textScaleFactor = textScaleFactor,
         _screenSize = screenSize,
@@ -552,6 +558,12 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
     _mainTickEvery = value;
     markNeedsPaint();
   }
+
+  int _mainSnapDistance;
+
+  int get mainSnapDistance => _mainSnapDistance;
+
+  set mainSnapDistance(int value) => _mainSnapDistance = value;
 
   String get label => _label;
   String _label;
@@ -706,13 +718,16 @@ class _RenderSlider extends RenderBox with RelayoutWhenSystemFontsChangeMixin {
   double _discretize(double value, int mainTickEvery) {
     double result = value.clamp(0.0, 1.0) as double;
 
-    // check if we're near a main tick, plus-minus three divisions
-    int dist = (value * divisions).toInt() % mainTickEvery;
-    if (dist < 3 || dist > mainTickEvery - 3) {
-      double mainDivisions = (divisions - 1) / mainTickEvery;
-      return (result * mainDivisions).round() / mainDivisions;
-    } else
-      return (result * divisions).round() / divisions;
+    // check if we're near a main tick
+    if (mainSnapDistance != null) {
+      int dist = (value * divisions).toInt() % mainTickEvery;
+      if (dist < mainSnapDistance || dist > mainTickEvery - mainSnapDistance) {
+        double mainDivisions = (divisions - 1) / mainTickEvery;
+        return (result * mainDivisions).round() / mainDivisions;
+      }
+    }
+
+    return (result * divisions).round() / divisions;
   }
 
   void _startInteraction(Offset globalPosition) {
