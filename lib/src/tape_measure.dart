@@ -175,6 +175,7 @@ class _TapeMeasureSliderState extends State<TapeMeasureSlider> with TickerProvid
           value: _unlerp(widget.value),
           divisions: widget.divisions,
           mainTickEvery: widget.mainTickEvery,
+          mainSnapDistance: widget.mainSnapDistance,
           sliderTheme: sliderTheme,
           textScaleFactor: MediaQuery.of(context).textScaleFactor,
           screenSize: _screenSize(),
