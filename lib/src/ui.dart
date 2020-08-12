@@ -10,6 +10,17 @@ enum CropShape {
   oval,
 }
 
+class UpdatedDetails {
+
+  final double rotation;
+  final double scale;
+  final Offset translation;
+
+  UpdatedDetails({this.scale, this.rotation, this.translation});
+}
+
+typedef ChangedCallback = void Function(UpdatedDetails details);
+
 class Crop extends StatefulWidget {
   final Widget child;
   final CropController controller;
@@ -137,6 +148,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _controller.forward();
 
     setState(() {});
+
+    updateOnChanged();
   }
 
   void _reCenterImageNoAnimation() {
@@ -183,6 +196,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller._offset = _endOffset;
 
     setState(() {});
+
+    updateOnChanged();
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
@@ -193,6 +208,19 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _endOffset = widget.controller._offset;
 
     setState(() {});
+    updateOnChanged();
+
+  }
+
+  Future updateOnChanged() async{
+    if (widget.controller._onChanged != null) {
+      widget.controller._onChanged(
+        UpdatedDetails(
+          scale: widget.controller.scale, 
+          rotation: widget.controller.rotation,
+          translation: widget.controller.offset)
+        );
+    }
   }
 
   @override
@@ -304,6 +332,7 @@ class CropController extends ChangeNotifier {
   double _rotation = 0;
   double _scale = 1;
   Offset _offset = Offset.zero;
+  ChangedCallback _onChanged;
 
   double get aspectRatio => _aspectRatio;
   set aspectRatio(double value) {
@@ -333,6 +362,9 @@ class CropController extends ChangeNotifier {
     ..translate(_offset.dx, _offset.dy, 0)
     ..rotateZ(_rotation)
     ..scale(_scale, _scale, 1);
+
+  set onChanged(ChangedCallback onChanged) 
+    => _onChanged = onChanged;
 
   CropController({
     double aspectRatio: 1.0,
