@@ -32,6 +32,14 @@ class _MyHomePageState extends State<MyHomePage> {
   double _rotation = 0;
   CropShape shape = CropShape.box;
 
+  void initState(){
+    super.initState();
+
+    controller.onChanged = (details) => 
+      print("Scale : ${details.scale}, Rotation: ${details.rotation}, translation: ${details.translation}");
+
+  }
+
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
