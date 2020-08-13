@@ -11,14 +11,12 @@ enum CropShape {
 }
 
 class MatrixDecomposition {
-
   final double rotation;
   final double scale;
   final Offset translation;
 
   MatrixDecomposition({this.scale, this.rotation, this.translation});
 }
-
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -32,6 +30,7 @@ class Crop extends StatefulWidget {
   final Widget overlay;
   final bool interactive;
   final CropShape shape;
+  final ValueChanged<MatrixDecomposition> onChanged;
 
   Crop({
     Key key,
@@ -46,6 +45,7 @@ class Crop extends StatefulWidget {
     this.overlay,
     this.interactive: true,
     this.shape: CropShape.box,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -148,7 +148,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
     setState(() {});
 
-    updateOnChanged();
+    _handleOnChanged();
   }
 
   void _reCenterImageNoAnimation() {
@@ -196,7 +196,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
     setState(() {});
 
-    updateOnChanged();
+    _handleOnChanged();
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
@@ -207,19 +207,14 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _endOffset = widget.controller._offset;
 
     setState(() {});
-    updateOnChanged();
-
+    _handleOnChanged();
   }
 
-  Future updateOnChanged() async{
-    if (widget.controller.onChanged != null) {
-      widget.controller.onChanged(
-        MatrixDecomposition(
-          scale: widget.controller.scale, 
-          rotation: widget.controller.rotation,
-          translation: widget.controller.offset)
-        );
-    }
+  void _handleOnChanged() {
+    widget?.onChanged?.call(MatrixDecomposition(
+        scale: widget.controller.scale,
+        rotation: widget.controller.rotation,
+        translation: widget.controller.offset));
   }
 
   @override
@@ -331,7 +326,6 @@ class CropController extends ChangeNotifier {
   double _rotation = 0;
   double _scale = 1;
   Offset _offset = Offset.zero;
-  ValueChanged<MatrixDecomposition> onChanged;
 
   double get aspectRatio => _aspectRatio;
   set aspectRatio(double value) {

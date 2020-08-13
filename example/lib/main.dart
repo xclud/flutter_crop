@@ -32,14 +32,6 @@ class _MyHomePageState extends State<MyHomePage> {
   double _rotation = 0;
   CropShape shape = CropShape.box;
 
-  void initState(){
-    super.initState();
-
-    controller.onChanged = (decomposition) => 
-      print("Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
-
-  }
-
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
@@ -108,6 +100,10 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.black,
               padding: EdgeInsets.all(8),
               child: Crop(
+                onChanged: (decomposition) async {
+                  print(
+                      "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
+                },
                 controller: controller,
                 shape: shape,
                 child: Image.asset(
