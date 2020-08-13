@@ -192,12 +192,19 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
+    /* details.rotation is in radians, 
+       so using appropriate setter for rotation
+       This will enable rotation using gesture
+    */
+    widget.controller.rotationRads =  details.rotation;
+
     setState(() {});
   }
 
+
   @override
   Widget build(BuildContext context) {
-    final r = widget.controller._rotation / 180.0 * pi;
+    final r = widget.controller.rotationRads;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value);
 
@@ -328,10 +335,17 @@ class CropController extends ChangeNotifier {
     _offset = value;
     notifyListeners();
   }
+  
+  double get rotationRads => _rotation / 180.0 * pi;
+  set rotationRads(double radians){
+    /* Using the setter rotation, 
+       and that will notify listeners as well */
+    rotation = radians * 180 / pi;
+  }
 
   Matrix4 get transform => Matrix4.identity()
     ..translate(_offset.dx, _offset.dy, 0)
-    ..rotateZ(_rotation)
+    ..rotateZ(rotationRads)
     ..scale(_scale, _scale, 1);
 
   CropController({
