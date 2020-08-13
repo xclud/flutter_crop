@@ -10,16 +10,15 @@ enum CropShape {
   oval,
 }
 
-class UpdatedDetails {
+class MatrixDecomposition {
 
   final double rotation;
   final double scale;
   final Offset translation;
 
-  UpdatedDetails({this.scale, this.rotation, this.translation});
+  MatrixDecomposition({this.scale, this.rotation, this.translation});
 }
 
-typedef ChangedCallback = void Function(UpdatedDetails details);
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -213,9 +212,9 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   Future updateOnChanged() async{
-    if (widget.controller._onChanged != null) {
-      widget.controller._onChanged(
-        UpdatedDetails(
+    if (widget.controller.onChanged != null) {
+      widget.controller.onChanged(
+        MatrixDecomposition(
           scale: widget.controller.scale, 
           rotation: widget.controller.rotation,
           translation: widget.controller.offset)
@@ -332,7 +331,7 @@ class CropController extends ChangeNotifier {
   double _rotation = 0;
   double _scale = 1;
   Offset _offset = Offset.zero;
-  ChangedCallback _onChanged;
+  ValueChanged<MatrixDecomposition> onChanged;
 
   double get aspectRatio => _aspectRatio;
   set aspectRatio(double value) {
@@ -362,9 +361,6 @@ class CropController extends ChangeNotifier {
     ..translate(_offset.dx, _offset.dy, 0)
     ..rotateZ(_rotation)
     ..scale(_scale, _scale, 1);
-
-  set onChanged(ChangedCallback onChanged) 
-    => _onChanged = onChanged;
 
   CropController({
     double aspectRatio: 1.0,

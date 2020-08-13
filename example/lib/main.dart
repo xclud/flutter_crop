@@ -35,8 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState(){
     super.initState();
 
-    controller.onChanged = (details) => 
-      print("Scale : ${details.scale}, Rotation: ${details.rotation}, translation: ${details.translation}");
+    controller.onChanged = (decomposition) => 
+      print("Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
 
   }
 
