@@ -196,11 +196,10 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
        so using appropriate setter for rotation
        This will enable rotation using gesture
     */
-    widget.controller.rotationRads =  details.rotation;
+    widget.controller.rotationRads = details.rotation;
 
     setState(() {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -335,9 +334,9 @@ class CropController extends ChangeNotifier {
     _offset = value;
     notifyListeners();
   }
-  
+
   double get rotationRads => _rotation / 180.0 * pi;
-  set rotationRads(double radians){
+  set rotationRads(double radians) {
     /* Using the setter rotation, 
        and that will notify listeners as well */
     rotation = radians * 180 / pi;
