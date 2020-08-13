@@ -10,6 +10,14 @@ enum CropShape {
   oval,
 }
 
+class MatrixDecomposition {
+  final double rotation;
+  final double scale;
+  final Offset translation;
+
+  MatrixDecomposition({this.scale, this.rotation, this.translation});
+}
+
 class Crop extends StatefulWidget {
   final Widget child;
   final CropController controller;
@@ -22,6 +30,7 @@ class Crop extends StatefulWidget {
   final Widget overlay;
   final bool interactive;
   final CropShape shape;
+  final ValueChanged<MatrixDecomposition> onChanged;
 
   Crop({
     Key key,
@@ -36,6 +45,7 @@ class Crop extends StatefulWidget {
     this.overlay,
     this.interactive: true,
     this.shape: CropShape.box,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -137,6 +147,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _controller.forward();
 
     setState(() {});
+
+    _handleOnChanged();
   }
 
   void _reCenterImageNoAnimation() {
@@ -183,6 +195,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller._offset = _endOffset;
 
     setState(() {});
+
+    _handleOnChanged();
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
@@ -193,6 +207,14 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _endOffset = widget.controller._offset;
 
     setState(() {});
+    _handleOnChanged();
+  }
+
+  void _handleOnChanged() {
+    widget?.onChanged?.call(MatrixDecomposition(
+        scale: widget.controller.scale,
+        rotation: widget.controller.rotation,
+        translation: widget.controller.offset));
   }
 
   @override
