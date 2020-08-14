@@ -1,3 +1,6 @@
+### [0.4.1] - 2020/08/14
+- Crop widget gets `onChanged` propery. Thanks to @sanjul.
+
 ### [0.4.0] - 2020/06/26
 - Adds support for Oval crop area. Special thanks to @songfei for his contribution and inspiration.
 - Example project updated with a crop shape selector.
