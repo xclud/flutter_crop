@@ -10,6 +10,7 @@ enum CropShape {
   oval,
 }
 
+
 class MatrixDecomposition {
   final double rotation;
   final double scale;
@@ -30,6 +31,7 @@ class Crop extends StatefulWidget {
   final Widget overlay;
   final bool interactive;
   final CropShape shape;
+  final double shapeScale;
   final ValueChanged<MatrixDecomposition> onChanged;
 
   Crop({
@@ -46,6 +48,7 @@ class Crop extends StatefulWidget {
     this.interactive: true,
     this.shape: CropShape.box,
     this.onChanged,
+    this.shapeScale,
   }) : super(key: key);
 
   @override
@@ -292,6 +295,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         backgroundColor: widget.backgroundColor,
         shape: widget.shape,
         dimColor: widget.dimColor,
+        shapeScale: widget.shapeScale,
         child: getRepaintBoundary(),
       ),
     ];
@@ -402,10 +406,12 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final Color dimColor;
   final Color backgroundColor;
   final CropShape shape;
+  final double shapeScale;
   CropRenderObjectWidget({
     @required Widget child,
     @required this.aspectRatio,
     @required this.shape,
+    this.shapeScale: 1,
     this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
   }) : super(child: child);
@@ -415,7 +421,8 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
       ..backgroundColor = backgroundColor
-      ..shape = shape;
+      ..shape = shape
+      ..shapeScale = shapeScale;
   }
 
   @override
@@ -440,6 +447,11 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
       needsPaint = true;
     }
 
+    if(renderObject.shapeScale != shapeScale) {
+      renderObject.shapeScale = shapeScale;
+      needsPaint = true;
+    }
+
     if (renderObject.backgroundColor != backgroundColor) {
       renderObject.backgroundColor = backgroundColor;
       needsPaint = true;
@@ -461,6 +473,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   Color dimColor;
   Color backgroundColor;
   CropShape shape;
+  double shapeScale;
   @override
   bool hitTestSelf(Offset position) => false;
 
@@ -471,19 +484,22 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
 
     if (child != null) {
       final forcedSize =
-          getSizeToFitByRatio(aspectRatio, size.width, size.height);
+          getSizeToFitByRatio(aspectRatio,
+              size.width, size.height);
       child.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
     }
   }
 
   Path _getDimClipPath() {
+    final scale = shapeScale ?? 1;
     final center = Offset(
       size.width / 2,
       size.height / 2,
     );
 
     final forcedSize =
-        getSizeToFitByRatio(aspectRatio, size.width, size.height);
+        getSizeToFitByRatio(aspectRatio,
+            size.width * scale, size.height * scale);
     Rect rect = Rect.fromCenter(
         center: center, width: forcedSize.width, height: forcedSize.height);
 
