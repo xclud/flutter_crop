@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final controller = CropController(aspectRatio: 1000 / 667.0);
   double _rotation = 0;
-  CropShape shape = CropShape.box;
+  BoxShape shape = BoxShape.rectangle;
 
   void _cropImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                helper: shape == CropShape.box
+                helper: shape == BoxShape.rectangle
                     ? Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.white, width: 2),
@@ -167,16 +167,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              PopupMenuButton<CropShape>(
+              PopupMenuButton<BoxShape>(
                 icon: Icon(Icons.crop_free),
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     child: Text("Box"),
-                    value: CropShape.box,
+                    value: BoxShape.rectangle,
                   ),
                   PopupMenuItem(
                     child: Text("Oval"),
-                    value: CropShape.oval,
+                    value: BoxShape.circle,
                   ),
                 ],
                 tooltip: 'Crop Shape',
