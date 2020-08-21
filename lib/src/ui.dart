@@ -483,9 +483,10 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     size = constraints.biggest;
 
     if (child != null) {
+      final scale = shapeScale ?? 1;
       final forcedSize =
           getSizeToFitByRatio(aspectRatio,
-              size.width, size.height);
+              size.width * scale, size.height * scale);
       child.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
     }
   }
@@ -519,6 +520,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {}
 
   void paint(PaintingContext context, Offset offset) {
+    final scale = shapeScale ?? 1;
     final bounds = offset & size;
 
     if (backgroundColor != null) {
@@ -526,7 +528,8 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     }
 
     final forcedSize =
-        getSizeToFitByRatio(aspectRatio, size.width, size.height);
+        getSizeToFitByRatio(aspectRatio,
+            size.width * scale, size.height * scale);
 
     if (child != null) {
       final Offset tmp = size - forcedSize;
