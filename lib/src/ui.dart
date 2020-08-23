@@ -5,12 +5,6 @@ import 'package:crop/src/geometry_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-enum CropShape {
-  box,
-  oval,
-}
-
-
 class MatrixDecomposition {
   final double rotation;
   final double scale;
@@ -30,7 +24,7 @@ class Crop extends StatefulWidget {
   final Widget helper;
   final Widget overlay;
   final bool interactive;
-  final CropShape shape;
+  final BoxShape shape;
   final double shapeScale;
   final ValueChanged<MatrixDecomposition> onChanged;
 
@@ -46,7 +40,7 @@ class Crop extends StatefulWidget {
     this.helper,
     this.overlay,
     this.interactive: true,
-    this.shape: CropShape.box,
+    this.shape: BoxShape.rectangle,
     this.onChanged,
     this.shapeScale,
   }) : super(key: key);
@@ -405,8 +399,9 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final double aspectRatio;
   final Color dimColor;
   final Color backgroundColor;
-  final CropShape shape;
+  final BoxShape shape;
   final double shapeScale;
+  
   CropRenderObjectWidget({
     @required Widget child,
     @required this.aspectRatio,
@@ -472,8 +467,9 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   double aspectRatio;
   Color dimColor;
   Color backgroundColor;
-  CropShape shape;
+  BoxShape shape;
   double shapeScale;
+
   @override
   bool hitTestSelf(Offset position) => false;
 
@@ -505,9 +501,9 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
         center: center, width: forcedSize.width, height: forcedSize.height);
 
     final path = Path();
-    if (shape == CropShape.oval) {
+    if (shape == BoxShape.circle) {
       path.addOval(rect);
-    } else if (shape == CropShape.box) {
+    } else if (shape == BoxShape.rectangle) {
       path.addRect(rect);
     }
 
