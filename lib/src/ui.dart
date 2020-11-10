@@ -59,7 +59,7 @@ class Crop extends StatefulWidget {
     properties.add(DiagnosticsProperty('foreground', foreground));
     properties.add(DiagnosticsProperty('helper', helper));
     properties.add(DiagnosticsProperty('overlay', overlay));
-    properties.add(FlagProperty('interactive', value: interactive));
+    properties.add(FlagProperty('interactive', value: interactive, ifTrue: 'enabled', ifFalse: 'disabled', showName: true));
   }
 }
 
