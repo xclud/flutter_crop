@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     trackShape: CenteredRectangularSliderTrackShape(),
                   ),
                   child: Slider(
-                    divisions: 361,
+                    divisions: 360,
                     value: _rotation,
                     min: -180,
                     max: 180,
