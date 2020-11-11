@@ -74,11 +74,25 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   late AnimationController _controller;
   late CurvedAnimation _animation;
 
-  Future<ui.Image> _crop(double pixelRatio) {
+  Future<ui.Image> _crop({
+    double? targetWidth,
+    double? targetHeight,
+    required double pixelRatio,
+  }) {
     final rrb = _repaintBoundaryKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary;
+        as RenderRepaintBoundary?;
+    
+    if (rrb == null || !rrb.hasSize) {
+      return Future.value(null);
+    }
 
-    return rrb.toImage(pixelRatio: pixelRatio);
+    final effectivePixelRatio = (targetWidth != null) 
+      ? targetWidth / rrb.size.width
+      : (targetHeight != null)
+      ? targetHeight / rrb.size.height
+      : pixelRatio;
+
+    return rrb.toImage(pixelRatio: effectivePixelRatio);
   }
 
   @override
@@ -329,7 +343,11 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 }
 
-typedef _CropCallback = Future<ui.Image> Function(double pixelRatio);
+typedef _CropCallback = Future<ui.Image> Function({
+  double? targetWidth,
+  double? targetHeight,
+  required double pixelRatio,
+});
 
 class CropController extends ChangeNotifier {
   double _aspectRatio = 1;
@@ -394,19 +412,37 @@ class CropController extends ChangeNotifier {
 
   /// Capture an image of the current state of this widget and its children.
   ///
-  /// The returned [ui.Image] has uncompressed raw RGBA bytes, will have
-  /// dimensions equal to the size of the [child] widget multiplied by [pixelRatio].
+  /// The returned [ui.Image] has uncompressed raw RGBA bytes. When the widget
+  /// has not been laid out, it maybe null.
   ///
+  /// [targetWidth], [targetHeight], [pixelRatio] can be set only one.
+  /// - if set [targetWidth], the width of the returned [ui.Image] will be [targetWidth] pixels.
+  /// - if set [targetHeight], the height of the returned [ui.Image] will be [targetHeight] pixels.
+  /// - if set [pixelRatio], the returned [ui.Image] will have dimensions equal
+  /// to the size of the [child] widget multiplied by [pixelRatio].
   /// The [pixelRatio] describes the scale between the logical pixels and the
   /// size of the output image. It is independent of the
   /// [window.devicePixelRatio] for the device, so specifying 1.0 (the default)
   /// will give you a 1:1 mapping between logical pixels and the output pixels
   /// in the image.
-  Future<ui.Image> crop({double pixelRatio: 1}) {
+  Future<ui.Image> crop({
+    double? targetWidth,
+    double? targetHeight,
+    double? pixelRatio
+  }) {
     if (_cropCallback == null) {
-      return Future.value(null);
+      return Future.value(null);  
     }
 
-    return _cropCallback!.call(pixelRatio);
+    // Note: to preserve backwards compatbility of `pixelRatio` default to 1.0, we allow 0 args to be passed
+    assert(
+      [targetWidth, targetHeight, pixelRatio]
+            .where((it) => it != null)
+            .length <= 1,
+      "Only one arg is allowed: targetWidget($targetWidth), targetHeight($targetHeight), pixelRatio($pixelRatio).",
+    );
+
+    // if others are not set, set pixelRatio
+    return _cropCallback!.call(targetWidth: targetWidth, targetHeight: targetHeight, pixelRatio: pixelRatio ?? 1.0);
   }
 }
