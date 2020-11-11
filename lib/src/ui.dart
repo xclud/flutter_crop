@@ -378,17 +378,41 @@ class CropController extends ChangeNotifier {
 
   /// Capture an image of the current state of this widget and its children.
   ///
-  /// The returned [ui.Image] has uncompressed raw RGBA bytes, will have
-  /// dimensions equal to the size of the [child] widget multiplied by [pixelRatio].
+  /// The returned [ui.Image] has uncompressed raw RGBA bytes. When the widget
+  /// has not been laid out, it maybe null.
   ///
+  /// [targetWidth], [targetHeight], [pixelRatio] can be set only one.
+  /// - if set [targetWidth], the width of the returned [ui.Image] will be [targetWidth] pixels.
+  /// - if set [targetHeight], the height of the returned [ui.Image] will be [targetHeight] pixels.
+  /// - if set [pixelRatio], the returned [ui.Image] will have dimensions equal
+  /// to the size of the [child] widget multiplied by [pixelRatio].
   /// The [pixelRatio] describes the scale between the logical pixels and the
   /// size of the output image. It is independent of the
   /// [window.devicePixelRatio] for the device, so specifying 1.0 (the default)
   /// will give you a 1:1 mapping between logical pixels and the output pixels
   /// in the image.
-  Future<ui.Image> crop({double pixelRatio: 1}) {
+  Future<ui.Image> crop({
+    double targetWidth,
+    double targetHeight,
+    double pixelRatio,
+  }) async {
+    assert(
+      [targetWidth, targetHeight, pixelRatio]
+              .where((it) => it != null)
+              .length <= 1,
+      "targetWidget($targetWidth), targetHeight($targetHeight), pixelRatio($pixelRatio) can be set only one.",
+    );
     RenderRepaintBoundary rrb = _previewKey.currentContext.findRenderObject();
-    return rrb.toImage(pixelRatio: pixelRatio);
+    if (rrb == null || !rrb.hasSize) {
+      return null;
+    }
+    var effectivePixelRatio = pixelRatio ?? 1.0;
+    if (targetWidth != null) {
+      effectivePixelRatio = targetWidth / rrb.size.width;
+    } else if (targetHeight != null) {
+      effectivePixelRatio = targetHeight / rrb.size.height;
+    }
+    return rrb.toImage(pixelRatio: effectivePixelRatio);
   }
 }
 
