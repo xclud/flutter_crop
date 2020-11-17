@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
+  final Key key;
   final double aspectRatio;
   final Color dimColor;
   final Color backgroundColor;
@@ -11,9 +12,10 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     @required Widget child,
     @required this.aspectRatio,
     @required this.shape,
+    this.key,
     this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
-  }) : super(child: child);
+  }) : super(key: key, child: child);
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()

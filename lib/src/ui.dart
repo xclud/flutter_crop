@@ -63,6 +63,7 @@ class Crop extends StatefulWidget {
 
 class _CropState extends State<Crop> with TickerProviderStateMixin {
   final _key = GlobalKey();
+  final _parent = GlobalKey();
 
   double _previousScale = 1;
   Offset _previousOffset = Offset.zero;
@@ -93,6 +94,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   void _reCenterImage() {
+    final totalSize = _parent.currentContext.size;
+
     final sz = _key.currentContext.size;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
@@ -216,7 +219,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value);
 
-    Widget getInCanvas() {
+    Widget _buildInnerCanvas() {
       final ip = IgnorePointer(
         key: _key,
         child: Transform(
@@ -254,10 +257,10 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       }
     }
 
-    Widget getRepaintBoundary() {
+    Widget _buildRepaintBoundary() {
       final repaint = RepaintBoundary(
         key: widget.controller._previewKey,
-        child: getInCanvas(),
+        child: _buildInnerCanvas(),
       );
 
       if (widget.helper == null) {
@@ -288,7 +291,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         backgroundColor: widget.backgroundColor,
         shape: widget.shape,
         dimColor: widget.dimColor,
-        child: getRepaintBoundary(),
+        child: _buildRepaintBoundary(),
       ),
     ];
 
@@ -301,6 +304,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     }
 
     return ClipRect(
+      key: _parent,
       child: Stack(
         fit: StackFit.expand,
         children: over,
