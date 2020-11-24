@@ -102,7 +102,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   void _reCenterImage() {
-    final totalSize = _parent.currentContext.size;
+    //final totalSize = _parent.currentContext.size;
 
     final sz = _key.currentContext.size;
     final s = widget.controller._scale * widget.controller._getMinScale();
