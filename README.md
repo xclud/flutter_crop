@@ -7,8 +7,12 @@ A Flutter package for cropping any widget, not only images. This package is enti
 
 * Flutter Android
 * Flutter iOS
-* Flutter Web (currently there is a blocking bug in flutter itself)
+* Flutter Web (as of 2020 Nov 24)*
 * Flutter Desktop
+
+\* In order to run Crop on web correctly, flutter version `1.24.0-8.0.pre.359` or above is needed (master channel) and you need to enable CanvasKit/Skia when compiling:
+
+`flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true`
 
 [![Crop Demo on Google Play](doc/google-play-badge.png)](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
 
