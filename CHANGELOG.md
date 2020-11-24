@@ -1,3 +1,6 @@
+### [0.4.2] - 2020/11/24
+- Web support (via CanvasKit/Skia)
+
 ### [0.4.1] - 2020/08/14
 - Crop widget gets `onChanged` propery. Thanks to @sanjul.
 
