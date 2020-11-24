@@ -64,6 +64,7 @@ class Crop extends StatefulWidget {
 class _CropState extends State<Crop> with TickerProviderStateMixin {
   final _key = GlobalKey();
   final _parent = GlobalKey();
+  final _repaintBoundaryKey = GlobalKey();
 
   double _previousScale = 1;
   Offset _previousOffset = Offset.zero;
@@ -73,8 +74,15 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   AnimationController _controller;
   CurvedAnimation _animation;
 
+  Future<ui.Image> _crop(double pixelRatio) {
+    RenderRepaintBoundary rrb =
+        _repaintBoundaryKey.currentContext.findRenderObject();
+    return rrb.toImage(pixelRatio: pixelRatio);
+  }
+
   @override
   void initState() {
+    widget.controller._cropCallback = _crop;
     widget.controller.addListener(_reCenterImage);
 
     //Setup animation.
@@ -259,7 +267,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
     Widget _buildRepaintBoundary() {
       final repaint = RepaintBoundary(
-        key: widget.controller._previewKey,
+        key: _repaintBoundaryKey,
         child: _buildInnerCanvas(),
       );
 
@@ -320,12 +328,14 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 }
 
+typedef _CropCallback = Future<ui.Image> Function(double pixelRatio);
+
 class CropController extends ChangeNotifier {
-  final _previewKey = GlobalKey();
   double _aspectRatio = 1;
   double _rotation = 0;
   double _scale = 1;
   Offset _offset = Offset.zero;
+  _CropCallback _cropCallback;
 
   double get aspectRatio => _aspectRatio;
   set aspectRatio(double value) {
@@ -392,7 +402,10 @@ class CropController extends ChangeNotifier {
   /// will give you a 1:1 mapping between logical pixels and the output pixels
   /// in the image.
   Future<ui.Image> crop({double pixelRatio: 1}) {
-    RenderRepaintBoundary rrb = _previewKey.currentContext.findRenderObject();
-    return rrb.toImage(pixelRatio: pixelRatio);
+    if (_cropCallback == null) {
+      return Future.value(null);
+    }
+
+    return _cropCallback.call(pixelRatio);
   }
 }
