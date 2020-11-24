@@ -50,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     final status = await Permission.storage.request();
                     if (status == PermissionStatus.granted) {
                       await _saveScreenShot(cropped);
-                      Scaffold.of(context).showSnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Saved to gallery.'),
                         ),
