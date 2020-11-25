@@ -1,3 +1,4 @@
+
 # crop
 [![pub package](https://img.shields.io/pub/v/crop.svg)](https://pub.dartlang.org/packages/crop)
 
@@ -10,13 +11,14 @@ A Flutter package for cropping any widget, not only images. This package is enti
 * Flutter Web (as of 2020 Nov 24)*
 * Flutter Desktop
 
-\* In order to run Crop on web correctly, flutter version `1.24.0-8.0.pre.359` or above is needed (master channel) and you need to enable CanvasKit/Skia when compiling:
+> \* In order to run Crop on web correctly, flutter version
+> `1.24.0-8.0.pre.359` or above is needed (master channel) and you need
+> to enable CanvasKit/Skia when compiling: `flutter build web
+> --dart-define=FLUTTER_WEB_USE_SKIA=true`
 
-`flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true`
+[Web Demo](https://xclud.github.io/flutter_crop/) | [Install from Google Play](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
 
-[![Crop Demo on Google Play](doc/google-play-badge.png)](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
-
-![Demo of Crop](doc/demo1.gif)
+![Screenshot](docs/screenshot01.png)
 
 ## Getting Started
 
