@@ -9,7 +9,12 @@ class RotatedRect {
   final Offset bottomLeft;
   final Offset bottomRight;
 
-  RotatedRect({this.topLeft, this.topRight, this.bottomLeft, this.bottomRight});
+  RotatedRect({
+    required this.topLeft,
+    required this.topRight,
+    required this.bottomLeft,
+    required this.bottomRight,
+  });
 
   RotatedRect rotate(double r) {
     final c = (this.topLeft + this.bottomRight) / 2;

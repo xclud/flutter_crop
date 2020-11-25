@@ -5,5 +5,9 @@ class MatrixDecomposition {
   final double scale;
   final Offset translation;
 
-  MatrixDecomposition({this.scale, this.rotation, this.translation});
+  MatrixDecomposition({
+    required this.scale,
+    required this.rotation,
+    required this.translation,
+  });
 }

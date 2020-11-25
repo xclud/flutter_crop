@@ -13,18 +13,18 @@ class Crop extends StatefulWidget {
   final Color backgroundColor;
   final Color dimColor;
   final EdgeInsetsGeometry padding;
-  final Widget background;
-  final Widget foreground;
-  final Widget helper;
-  final Widget overlay;
+  final Widget? background;
+  final Widget? foreground;
+  final Widget? helper;
+  final Widget? overlay;
   final bool interactive;
   final BoxShape shape;
-  final ValueChanged<MatrixDecomposition> onChanged;
+  final ValueChanged<MatrixDecomposition>? onChanged;
 
   Crop({
-    Key key,
-    @required this.child,
-    @required this.controller,
+    Key? key,
+    required this.child,
+    required this.controller,
     this.padding: const EdgeInsets.all(8),
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
     this.backgroundColor: Colors.black,
@@ -45,7 +45,7 @@ class Crop extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<EdgeInsets>('padding', padding));
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
     properties.add(ColorProperty('dimColor', dimColor));
     properties.add(DiagnosticsProperty('child', child));
     properties.add(DiagnosticsProperty('controller', controller));
@@ -71,12 +71,13 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   Offset _startOffset = Offset.zero;
   Offset _endOffset = Offset.zero;
 
-  AnimationController _controller;
-  CurvedAnimation _animation;
+  late AnimationController _controller;
+  late CurvedAnimation _animation;
 
   Future<ui.Image> _crop(double pixelRatio) {
-    RenderRepaintBoundary rrb =
-        _repaintBoundaryKey.currentContext.findRenderObject();
+    final rrb = _repaintBoundaryKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary;
+
     return rrb.toImage(pixelRatio: pixelRatio);
   }
 
@@ -104,7 +105,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   void _reCenterImage() {
     //final totalSize = _parent.currentContext.size;
 
-    final sz = _key.currentContext.size;
+    final sz = _key.currentContext!.size!;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
@@ -156,7 +157,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   void _reCenterImageNoAnimation() {
-    final sz = _key.currentContext.size;
+    final sz = _key.currentContext!.size!;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
@@ -215,7 +216,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   void _handleOnChanged() {
-    widget?.onChanged?.call(MatrixDecomposition(
+    widget.onChanged?.call(MatrixDecomposition(
         scale: widget.controller.scale,
         rotation: widget.controller.rotation,
         translation: widget.controller.offset));
@@ -225,7 +226,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final r = widget.controller._rotation / 180.0 * pi;
     final s = widget.controller._scale * widget.controller._getMinScale();
-    final o = Offset.lerp(_startOffset, _endOffset, _animation.value);
+    final o = Offset.lerp(_startOffset, _endOffset, _animation.value)!;
 
     Widget _buildInnerCanvas() {
       final ip = IgnorePointer(
@@ -246,13 +247,13 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       List<Widget> widgets = [];
 
       if (widget.background != null) {
-        widgets.add(widget.background);
+        widgets.add(widget.background!);
       }
 
       widgets.add(ip);
 
       if (widget.foreground != null) {
-        widgets.add(widget.foreground);
+        widgets.add(widget.foreground!);
       }
 
       if (widgets.length == 1) {
@@ -277,7 +278,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
       return Stack(
         fit: StackFit.expand,
-        children: [repaint, widget.helper],
+        children: [repaint, widget.helper!],
       );
     }
 
@@ -304,7 +305,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     ];
 
     if (widget.overlay != null) {
-      over.add(widget.overlay);
+      over.add(widget.overlay!);
     }
 
     if (widget.interactive) {
@@ -335,7 +336,7 @@ class CropController extends ChangeNotifier {
   double _rotation = 0;
   double _scale = 1;
   Offset _offset = Offset.zero;
-  _CropCallback _cropCallback;
+  _CropCallback? _cropCallback;
 
   double get aspectRatio => _aspectRatio;
   set aspectRatio(double value) {
@@ -406,6 +407,6 @@ class CropController extends ChangeNotifier {
       return Future.value(null);
     }
 
-    return _cropCallback.call(pixelRatio);
+    return _cropCallback!.call(pixelRatio);
   }
 }
