@@ -431,7 +431,7 @@ class CropController extends ChangeNotifier {
     double? pixelRatio
   }) {
     if (_cropCallback == null) {
-      return Future.value(null);  
+      return Future.value(null);
     }
 
     // Note: to preserve backwards compatbility of `pixelRatio` default to 1.0, we allow 0 args to be passed
@@ -442,7 +442,6 @@ class CropController extends ChangeNotifier {
       "Only one arg is allowed: targetWidget($targetWidth), targetHeight($targetHeight), pixelRatio($pixelRatio).",
     );
 
-    // if others are not set, set pixelRatio
     return _cropCallback!.call(targetWidth: targetWidth, targetHeight: targetHeight, pixelRatio: pixelRatio ?? 1.0);
   }
 }
