@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 class Crop extends StatefulWidget {
-  final Widget child;
+  Widget child;
   final CropController controller;
   final Color backgroundColor;
   final Color dimColor;
@@ -23,6 +23,10 @@ class Crop extends StatefulWidget {
 
   Crop({
     Key? key,
+    @Deprecated(
+        'Use method cropOn(the image widget) instead'
+            'This feature was deprecated with version 0.4.3.'
+    )
     required this.child,
     required this.controller,
     this.padding: const EdgeInsets.all(8),
@@ -36,6 +40,17 @@ class Crop extends StatefulWidget {
     this.shape: BoxShape.rectangle,
     this.onChanged,
   }) : super(key: key);
+
+  Crop cropOn(BuildContext context, Widget imageChild){
+    final screenSize = MediaQuery.of(context).size;
+    child = Container(
+      color: backgroundColor,
+      width: screenSize.width,
+      height: _getHeight(context),
+      child: imageChild,
+    );
+    return this;
+  }
 
   @override
   State<StatefulWidget> createState() {
@@ -58,6 +73,24 @@ class Crop extends StatefulWidget {
         ifTrue: 'enabled',
         ifFalse: 'disabled',
         showName: true));
+  }
+
+  double _getHeight(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    var ratio = controller._aspectRatio;
+
+    if(ratio==1) {
+      return screenSize.width;
+    }
+    else if (ratio>1) {
+      return screenSize.width / ratio;
+    }
+    else{
+      ratio = 1 / ratio;
+      return screenSize.width * (ratio);
+    }
+    //x2,y1: return screenSize.width / 2;
+    //x1,y2: return screenSize.width * 2;
   }
 }
 
