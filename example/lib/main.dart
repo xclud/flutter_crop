@@ -100,20 +100,13 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.black,
               padding: EdgeInsets.all(8),
               child: Crop(
+                dimColor: Colors.black54,
                 onChanged: (decomposition) {
                   print(
                       "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
                 },
                 controller: controller,
                 shape: shape,
-                child: Image.asset(
-                  'images/sample.jpg',
-                  fit: BoxFit.cover,
-                ),
-                /* It's very important to set `fit: BoxFit.cover`.
-                   Do NOT remove this line.
-                   There are a lot of issues on github repo by people who remove this line and their image is not shown correctly.
-                */
                 foreground: IgnorePointer(
                   child: Container(
                     alignment: Alignment.bottomRight,
@@ -130,6 +123,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       )
                     : null,
+              ).cropOn(context, Image.asset(
+                'images/sample.jpg',
+                fit: BoxFit.contain,
+              ),
+                /* It's very important to set `fit: BoxFit.contain`.
+                   Do NOT remove this line.
+                   There are a lot of issues on github repo by people who remove this line and their image is not shown correctly.
+                */
               ),
             ),
           ),
