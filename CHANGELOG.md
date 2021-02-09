@@ -1,3 +1,6 @@
+### [0.4.3] - 2021/02/09
+- Migrate to null-safety
+
 ### [0.4.3-nullsafety.0] - 2020/11/25
 - Null-safety
 

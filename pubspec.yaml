@@ -1,11 +1,11 @@
 name: crop
 description: Crop any widget/image in Android, iOS, Web and Desktop with fancy and customizable UI, in pure Dart code.
-version: 0.4.3-nullsafety.0
+version: 0.4.3
 homepage: https://github.com/xclud/flutter_crop
 
 
 environment:
-  sdk: ">=2.12.0-0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
