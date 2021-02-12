@@ -16,6 +16,8 @@ A Flutter package for cropping any widget, not only images. This package is enti
 > to enable CanvasKit/Skia when compiling: `flutter build web
 > --dart-define=FLUTTER_WEB_USE_SKIA=true`
 
+> On flutter version 1.26.0-17.3.pre or above (beta channel) not need to enable CanvasKit/Skia when compiling.
+
 [Web Demo](https://xclud.github.io/flutter_crop/) | [Install from Google Play](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
 
 ![Screenshot](docs/screenshot01.png)
