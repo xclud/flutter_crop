@@ -102,6 +102,80 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     super.initState();
   }
 
+  static Offset _calculateEndOffset(RotatedRect image, Rect canvas) {
+    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final tr = line(image.topLeft, image.topRight, canvas.topRight);
+    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
+    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
+    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
+    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    // final dt = max(dtr, dtl);
+    // final db = max(dbr, dbl);
+    // final dl = max(dtl, dbl);
+    // final dr = max(dtr, dbr);
+
+    // final t = max(image.topLeft.dy, image.topRight.dy);
+    // final b = max(image.bottomLeft.dy, image.bottomRight.dy);
+    // final l = max(image.topLeft.dx, image.bottomLeft.dx);
+    // final r = max(image.topRight.dx, image.bottomRight.dx);
+
+    // final t = max(tl.dy, tr.dy);
+    // final b = max(bl.dy, br.dy);
+    // final l = max(tl.dx, bl.dx);
+    // final r = max(tr.dx, br.dx);
+
+    // double x = 0;
+    // double y = 0;
+
+    // if (dl > 0) {
+    //   final d = dl - l;
+    //   x -= d;
+    // }
+
+    // if (dr > 0) {
+    //   final d = dr - r;
+    //   x += d;
+    // }
+
+    // if (dt > 0) {
+    //   final d = dt - t;
+    //   y -= d;
+    // }
+
+    // if (db > 0) {
+    //   final d = db - b;
+    //   y += d;
+    // }
+
+    var diff = Offset(0, 0);
+
+    if (dtl > 0) {
+      final d = canvas.topLeft - tl;
+      diff += d;
+    }
+
+    if (dtr > 0) {
+      final d = canvas.topRight - tr;
+      diff += d;
+    }
+
+    if (dbr > 0) {
+      final d = canvas.bottomRight - br;
+      diff += d;
+    }
+    if (dbl > 0) {
+      final d = canvas.bottomLeft - bl;
+      diff += d;
+    }
+
+    //return Offset(x, y);
+    return diff;
+  }
+
   void _reCenterImage() {
     //final totalSize = _parent.currentContext.size;
 
@@ -113,36 +187,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final image = getRotated(
         canvas, widget.controller._rotation, s, widget.controller._offset);
     _startOffset = widget.controller._offset;
-    _endOffset = widget.controller._offset;
-
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-    if (dtl > 0) {
-      final d = canvas.topLeft - tl;
-      _endOffset += d;
-    }
-
-    if (dtr > 0) {
-      final d = canvas.topRight - tr;
-      _endOffset += d;
-    }
-
-    if (dbr > 0) {
-      final d = canvas.bottomRight - br;
-      _endOffset += d;
-    }
-    if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
-      _endOffset += d;
-    }
+    _endOffset = _startOffset + _calculateEndOffset(image, canvas);
 
     widget.controller._offset = _endOffset;
 
@@ -165,36 +210,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final image = getRotated(
         canvas, widget.controller._rotation, s, widget.controller._offset);
     _startOffset = widget.controller._offset;
-    _endOffset = widget.controller._offset;
-
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-    if (dtl > 0) {
-      final d = canvas.topLeft - tl;
-      _endOffset += d;
-    }
-
-    if (dtr > 0) {
-      final d = canvas.topRight - tr;
-      _endOffset += d;
-    }
-
-    if (dbr > 0) {
-      final d = canvas.bottomRight - br;
-      _endOffset += d;
-    }
-    if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
-      _endOffset += d;
-    }
+    _endOffset = _startOffset + _calculateEndOffset(image, canvas);
 
     _startOffset = _endOffset;
     widget.controller._offset = _endOffset;
