@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:crop/src/crop_render.dart';
 import 'package:crop/src/geometry_helper.dart';
+import 'package:crop/src/line.dart';
 import 'package:crop/src/matrix_decomposition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -113,39 +114,19 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final ibr = image.bottomRight;
     final ibl = image.bottomLeft;
 
-    final tl = line(itl, ibl, ctl);
-    final tr = line(itl, itr, ctr);
-    final br = line(ibr, itr, cbr);
-    final bl = line(ibl, ibr, cbl);
+    final ll = Line(itl, ibl);
+    final lt = Line(itl, itr);
+    final lr = Line(ibr, itr);
+    final lb = Line(ibl, ibr);
 
-    final dtl = side(itl, ibl, ctl);
-    final dtr = side(itr, itl, ctr);
-    final dbr = side(ibr, itr, cbr);
-    final dbl = side(ibl, ibr, cbl);
+    final tl = ctl - ll.lineTo(ctl);
+    final tr = ctr - lt.lineTo(ctr);
+    final br = cbr - lr.lineTo(cbr);
+    final bl = cbl - lb.lineTo(cbl);
 
-    var diff = Offset(0, 0);
+    final diff = tl + tr + br + bl;
 
-    if (dtl > 0) {
-      final d = canvas.topLeft - tl;
-      diff += d;
-    }
-
-    if (dtr > 0) {
-      final d = canvas.topRight - tr;
-      diff += d;
-    }
-
-    if (dbr > 0) {
-      final d = canvas.bottomRight - br;
-      diff += d;
-    }
-    if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
-      diff += d;
-    }
-
-    //return Offset(x, y);
-    return diff;
+    return diff / 2.0;
   }
 
   void _reCenterImage() {
