@@ -103,53 +103,25 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   static Offset _calculateEndOffset(RotatedRect image, Rect canvas) {
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ctl = canvas.topLeft;
+    final ctr = canvas.topRight;
+    final cbr = canvas.bottomRight;
+    final cbl = canvas.bottomLeft;
 
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final itl = image.topLeft;
+    final itr = image.topRight;
+    final ibr = image.bottomRight;
+    final ibl = image.bottomLeft;
 
-    // final dt = max(dtr, dtl);
-    // final db = max(dbr, dbl);
-    // final dl = max(dtl, dbl);
-    // final dr = max(dtr, dbr);
+    final tl = line(itl, ibl, ctl);
+    final tr = line(itl, itr, ctr);
+    final br = line(ibr, itr, cbr);
+    final bl = line(ibl, ibr, cbl);
 
-    // final t = max(image.topLeft.dy, image.topRight.dy);
-    // final b = max(image.bottomLeft.dy, image.bottomRight.dy);
-    // final l = max(image.topLeft.dx, image.bottomLeft.dx);
-    // final r = max(image.topRight.dx, image.bottomRight.dx);
-
-    // final t = max(tl.dy, tr.dy);
-    // final b = max(bl.dy, br.dy);
-    // final l = max(tl.dx, bl.dx);
-    // final r = max(tr.dx, br.dx);
-
-    // double x = 0;
-    // double y = 0;
-
-    // if (dl > 0) {
-    //   final d = dl - l;
-    //   x -= d;
-    // }
-
-    // if (dr > 0) {
-    //   final d = dr - r;
-    //   x += d;
-    // }
-
-    // if (dt > 0) {
-    //   final d = dt - t;
-    //   y -= d;
-    // }
-
-    // if (db > 0) {
-    //   final d = db - b;
-    //   y += d;
-    // }
+    final dtl = side(itl, ibl, ctl);
+    final dtr = side(itr, itl, ctr);
+    final dbr = side(ibr, itr, cbr);
+    final dbl = side(ibl, ibr, cbl);
 
     var diff = Offset(0, 0);
 
@@ -424,5 +396,15 @@ class CropController extends ChangeNotifier {
     }
 
     return _cropCallback!.call(pixelRatio);
+  }
+}
+
+extension _ on Offset {
+  Offset x(double x) {
+    return Offset(x, dy);
+  }
+
+  Offset y(double y) {
+    return Offset(dx, y);
   }
 }
