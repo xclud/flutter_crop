@@ -1,33 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' as vm;
 
 class Line {
   final Offset a;
   final Offset b;
+  final double length;
+  Line(this.a, this.b) : length = (a - b).distance;
 
-  const Line(this.a, this.b);
-
-  static double _side(vm.Vector2 a, vm.Vector2 b, vm.Vector2 p) {
-    return (b.x - a.x) * (a.y - p.y) - (a.x - p.x) * (b.y - a.y);
+  static double _side(Offset a, Offset b, Offset p) {
+    return (b.dx - a.dx) * (a.dy - p.dy) - (a.dx - p.dx) * (b.dy - a.dy);
   }
 
   double distanceToPoint(Offset point) {
-    final aa = vm.Vector2(a.dx, a.dy);
-    final bb = vm.Vector2(b.dx, b.dy);
-    final cc = vm.Vector2(point.dx, point.dy);
-
-    vm.Vector2(b.dx, b.dy);
-    final d = _side(aa, bb, cc);
-
-    return d / bb.distanceTo(aa);
+    final d = _side(a, b, point);
+    return d / (b - a).distance;
   }
 
-  /// Compute the distance from AB to C
-  Offset lineTo(Offset point) {
+  /// Compute a line perpendicular to this line from the given point.
+  Line lineTo(Offset point) {
     final lineDir = _normalize(b - a);
     var v = point - a;
     var d = _dot(v, lineDir);
-    return a + Offset(lineDir.dx * d, lineDir.dy * d);
+    final aa = a + Offset(lineDir.dx * d, lineDir.dy * d);
+
+    return Line(aa, point);
   }
 }
 

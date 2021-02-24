@@ -119,10 +119,10 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final lr = Line(ibr, itr);
     final lb = Line(ibl, ibr);
 
-    final tl = ctl - ll.lineTo(ctl);
-    final tr = ctr - lt.lineTo(ctr);
-    final br = cbr - lr.lineTo(cbr);
-    final bl = cbl - lb.lineTo(cbl);
+    final tl = ctl - ll.lineTo(ctl).a;
+    final tr = ctr - lt.lineTo(ctr).a;
+    final br = cbr - lr.lineTo(cbr).a;
+    final bl = cbl - lb.lineTo(cbl).a;
 
     final diff = tl + tr + br + bl;
 
