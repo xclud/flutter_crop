@@ -114,19 +114,43 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final ibr = image.bottomRight;
     final ibl = image.bottomLeft;
 
-    final ll = Line(itl, ibl);
-    final lt = Line(itl, itr);
-    final lr = Line(ibr, itr);
-    final lb = Line(ibl, ibr);
+    final l = Line(itl, ibl);
+    final t = Line(itr, itl);
+    final r = Line(ibr, itr);
+    final b = Line(ibl, ibr);
 
-    final tl = ctl - ll.lineTo(ctl).a;
-    final tr = ctr - lt.lineTo(ctr).a;
-    final br = cbr - lr.lineTo(cbr).a;
-    final bl = cbl - lb.lineTo(cbl).a;
+    final tl = l.lineTo(ctl).a;
+    final tr = t.lineTo(ctr).a;
+    final br = r.lineTo(cbr).a;
+    final bl = b.lineTo(cbl).a;
 
-    final diff = tl + tr + br + bl;
+    final dtl = l.distanceToPoint(ctl);
+    final dtr = t.distanceToPoint(ctr);
+    final dbr = r.distanceToPoint(cbr);
+    final dbl = b.distanceToPoint(cbl);
 
-    return diff / 2.0;
+    var diff = Offset(0, 0);
+
+    if (dtl > 0) {
+      final d = canvas.topLeft - tl;
+      diff += d;
+    }
+
+    if (dtr > 0) {
+      final d = canvas.topRight - tr;
+      diff += d;
+    }
+
+    if (dbr > 0) {
+      final d = canvas.bottomRight - br;
+      diff += d;
+    }
+    if (dbl > 0) {
+      final d = canvas.bottomLeft - bl;
+      diff += d;
+    }
+
+    return diff;
   }
 
   void _reCenterImage() {
