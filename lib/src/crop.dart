@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:crop/src/crop_render.dart';
 import 'package:crop/src/geometry_helper.dart';
+import 'package:crop/src/line.dart';
 import 'package:crop/src/matrix_decomposition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -113,15 +114,20 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final ibr = image.bottomRight;
     final ibl = image.bottomLeft;
 
-    final tl = line(itl, ibl, ctl);
-    final tr = line(itl, itr, ctr);
-    final br = line(ibr, itr, cbr);
-    final bl = line(ibl, ibr, cbl);
+    final l = Line(itl, ibl);
+    final t = Line(itr, itl);
+    final r = Line(ibr, itr);
+    final b = Line(ibl, ibr);
 
-    final dtl = side(itl, ibl, ctl);
-    final dtr = side(itr, itl, ctr);
-    final dbr = side(ibr, itr, cbr);
-    final dbl = side(ibl, ibr, cbl);
+    final tl = l.lineTo(ctl).a;
+    final tr = t.lineTo(ctr).a;
+    final br = r.lineTo(cbr).a;
+    final bl = b.lineTo(cbl).a;
+
+    final dtl = l.distanceToPoint(ctl);
+    final dtr = t.distanceToPoint(ctr);
+    final dbr = r.distanceToPoint(cbr);
+    final dbl = b.distanceToPoint(cbl);
 
     var diff = Offset(0, 0);
 
@@ -144,7 +150,6 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       diff += d;
     }
 
-    //return Offset(x, y);
     return diff;
   }
 
