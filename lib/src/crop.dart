@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:crop/src/crop_render.dart';
 import 'package:crop/src/geometry_helper.dart';
-import 'package:crop/src/line.dart';
 import 'package:crop/src/matrix_decomposition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -103,56 +102,6 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     super.initState();
   }
 
-  static Offset _calculateEndOffset(RotatedRect image, Rect canvas) {
-    final ctl = canvas.topLeft;
-    final ctr = canvas.topRight;
-    final cbr = canvas.bottomRight;
-    final cbl = canvas.bottomLeft;
-
-    final itl = image.topLeft;
-    final itr = image.topRight;
-    final ibr = image.bottomRight;
-    final ibl = image.bottomLeft;
-
-    final l = Line(itl, ibl);
-    final t = Line(itr, itl);
-    final r = Line(ibr, itr);
-    final b = Line(ibl, ibr);
-
-    final tl = l.lineTo(ctl).a;
-    final tr = t.lineTo(ctr).a;
-    final br = r.lineTo(cbr).a;
-    final bl = b.lineTo(cbl).a;
-
-    final dtl = l.distanceToPoint(ctl);
-    final dtr = t.distanceToPoint(ctr);
-    final dbr = r.distanceToPoint(cbr);
-    final dbl = b.distanceToPoint(cbl);
-
-    var diff = Offset(0, 0);
-
-    if (dtl > 0) {
-      final d = canvas.topLeft - tl;
-      diff += d;
-    }
-
-    if (dtr > 0) {
-      final d = canvas.topRight - tr;
-      diff += d;
-    }
-
-    if (dbr > 0) {
-      final d = canvas.bottomRight - br;
-      diff += d;
-    }
-    if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
-      diff += d;
-    }
-
-    return diff;
-  }
-
   void _reCenterImage() {
     //final totalSize = _parent.currentContext.size;
 
@@ -164,7 +113,36 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final image = getRotated(
         canvas, widget.controller._rotation, s, widget.controller._offset);
     _startOffset = widget.controller._offset;
-    _endOffset = _startOffset + _calculateEndOffset(image, canvas);
+    _endOffset = widget.controller._offset;
+
+    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final tr = line(image.topLeft, image.topRight, canvas.topRight);
+    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
+    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
+    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
+    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    if (dtl > 0) {
+      final d = canvas.topLeft - tl;
+      _endOffset += d;
+    }
+
+    if (dtr > 0) {
+      final d = canvas.topRight - tr;
+      _endOffset += d;
+    }
+
+    if (dbr > 0) {
+      final d = canvas.bottomRight - br;
+      _endOffset += d;
+    }
+    if (dbl > 0) {
+      final d = canvas.bottomLeft - bl;
+      _endOffset += d;
+    }
 
     widget.controller._offset = _endOffset;
 
@@ -187,7 +165,36 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final image = getRotated(
         canvas, widget.controller._rotation, s, widget.controller._offset);
     _startOffset = widget.controller._offset;
-    _endOffset = _startOffset + _calculateEndOffset(image, canvas);
+    _endOffset = widget.controller._offset;
+
+    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final tr = line(image.topLeft, image.topRight, canvas.topRight);
+    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
+    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
+    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
+    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
+    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+
+    if (dtl > 0) {
+      final d = canvas.topLeft - tl;
+      _endOffset += d;
+    }
+
+    if (dtr > 0) {
+      final d = canvas.topRight - tr;
+      _endOffset += d;
+    }
+
+    if (dbr > 0) {
+      final d = canvas.bottomRight - br;
+      _endOffset += d;
+    }
+    if (dbl > 0) {
+      final d = canvas.bottomLeft - bl;
+      _endOffset += d;
+    }
 
     _startOffset = _endOffset;
     widget.controller._offset = _endOffset;
@@ -401,15 +408,5 @@ class CropController extends ChangeNotifier {
     }
 
     return _cropCallback!.call(pixelRatio);
-  }
-}
-
-extension _ on Offset {
-  Offset x(double x) {
-    return Offset(x, dy);
-  }
-
-  Offset y(double y) {
-    return Offset(dx, y);
   }
 }
