@@ -1,3 +1,6 @@
+### [0.5.0] - 2021/03/03
+- Flutter 2.0 and Dart 2.12.0 support.
+
 ### [0.4.3] - 2021/02/09
 - Migrate to null-safety
 
