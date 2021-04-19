@@ -6,6 +6,7 @@ import 'package:crop/src/geometry_helper.dart';
 import 'package:crop/src/matrix_decomposition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:vector_math/vector_math.dart' as vector_math;
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -70,6 +71,14 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   Offset _previousOffset = Offset.zero;
   Offset _startOffset = Offset.zero;
   Offset _endOffset = Offset.zero;
+  double _previousRotation = 0.0;
+  double _previousGestureRotation = 0.0;
+
+  /// Store the pointer count (finger involved to perform scaling).
+  ///
+  /// This is used to compare with the value in
+  /// [ScaleUpdateDetails.pointerCount]. Check [_onScaleUpdate] for detail.
+  int _previousPointerCount = 0;
 
   late AnimationController _controller;
   late CurvedAnimation _animation;
@@ -211,6 +220,41 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
+    // In the case where lesser than 2 fingers involved in scaling, we ignore
+    // the rotation handling.
+    if (details.pointerCount > 1) {
+      // In the first touch, we reset all the values.
+      if (_previousPointerCount != details.pointerCount) {
+        _previousPointerCount = details.pointerCount;
+        _previousGestureRotation = 0.0;
+      }
+
+      // Instead of directly embracing the details.rotation, we need to
+      // perform calculation to ensure that each round of rotation is smooth.
+      // A user rotate the image using finger and release is considered as a
+      // round. Without this calculation, the rotation degree of the image will
+      // be reset.
+      final gestureRotation = vector_math.degrees(details.rotation);
+
+      // Within a round of rotation, the details.rotation is provided with
+      // incremented value when user rotates. We don't need this, all we
+      // want is the offset.
+      final gestureRotationOffset =
+          _previousGestureRotation - gestureRotation;
+
+      // Remove the offset and constraint the degree scope to 0° <= degree <=
+      // 360°. Constraint the scope is unnecessary, however, by doing this,
+      // it would make our life easier when debugging.
+      final rotationAfterCalculation =
+          (widget.controller.rotation - gestureRotationOffset) % 360;
+
+      /* details.rotation is in radians, convert this to degrees and set
+        our rotation */
+      _previousRotation =
+          widget.controller._rotation = rotationAfterCalculation;
+      _previousGestureRotation = gestureRotation;
+    }
+
     setState(() {});
     _handleOnChanged();
   }
@@ -224,7 +268,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final r = widget.controller._rotation / 180.0 * pi;
+    final r = vector_math.radians(widget.controller._rotation);
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value)!;
 
@@ -290,6 +334,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       onScaleUpdate: _onScaleUpdate,
       onScaleEnd: (details) {
         widget.controller._scale = max(widget.controller._scale, 1);
+        _previousPointerCount = 0;
         _reCenterImage();
       },
     );
