@@ -119,12 +119,16 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
+    final offset = _toVector2(widget.controller._offset);
     final canvas = Rectangle.fromLTWH(0, 0, w, h);
-    final image = RotatedRectangle.fromRectRotationScaleOffset(
-        rect: canvas,
-        rotation: widget.controller._rotation,
-        scale: s,
-        offset: _toVector2(widget.controller._offset));
+    final obb = Obb2(
+      center: offset + canvas.center,
+      width: w * s,
+      height: h * s,
+      rotation: widget.controller._rotation,
+    );
+
+    final bakedObb = obb.bake();
 
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
@@ -134,20 +138,20 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final cbr = canvas.bottomRight;
     final cbl = canvas.bottomLeft;
 
-    final ll = Line(image.topLeft, image.bottomLeft);
-    final tt = Line(image.topRight, image.topLeft);
-    final rr = Line(image.bottomRight, image.topRight);
-    final bb = Line(image.bottomLeft, image.bottomRight);
+    final ll = Line(bakedObb.topLeft, bakedObb.bottomLeft);
+    final tt = Line(bakedObb.topRight, bakedObb.topLeft);
+    final rr = Line(bakedObb.bottomRight, bakedObb.topRight);
+    final bb = Line(bakedObb.bottomLeft, bakedObb.bottomRight);
 
     final tl = ll.project(ctl);
     final tr = tt.project(ctr);
     final br = rr.project(cbr);
     final bl = bb.project(cbl);
 
-    final dtl = ll.calculateSide(ctl);
-    final dtr = tt.calculateSide(ctr);
-    final dbr = rr.calculateSide(cbr);
-    final dbl = bb.calculateSide(cbl);
+    final dtl = ll.distanceToPoint(ctl);
+    final dtr = tt.distanceToPoint(ctr);
+    final dbr = rr.distanceToPoint(cbr);
+    final dbl = bb.distanceToPoint(cbl);
 
     if (dtl > 0) {
       final d = _toOffset(ctl - tl);
