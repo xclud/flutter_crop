@@ -2,10 +2,8 @@ import 'dart:ui' as ui;
 import 'dart:math';
 
 import 'package:crop/src/crop_render.dart';
-import 'package:crop/src/line.dart';
+import 'package:collision/collision.dart';
 import 'package:crop/src/matrix_decomposition.dart';
-import 'package:crop/src/rotated_rectangle.dart';
-import 'package:crop/src/rectangle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
