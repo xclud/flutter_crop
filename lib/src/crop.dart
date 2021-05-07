@@ -71,7 +71,6 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   Offset _previousOffset = Offset.zero;
   Offset _startOffset = Offset.zero;
   Offset _endOffset = Offset.zero;
-  double _previousRotation = 0.0;
   double _previousGestureRotation = 0.0;
 
   /// Store the pointer count (finger involved to perform scaling).
@@ -250,8 +249,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
       /* details.rotation is in radians, convert this to degrees and set
         our rotation */
-      _previousRotation =
-          widget.controller._rotation = rotationAfterCalculation;
+      widget.controller._rotation = rotationAfterCalculation;
       _previousGestureRotation = gestureRotation;
     }
 
