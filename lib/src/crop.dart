@@ -21,6 +21,7 @@ class Crop extends StatefulWidget {
   final bool interactive;
   final BoxShape shape;
   final ValueChanged<MatrixDecomposition>? onChanged;
+  final Duration animationDuration;
 
   Crop({
     Key? key,
@@ -36,6 +37,7 @@ class Crop extends StatefulWidget {
     this.interactive: true,
     this.shape: BoxShape.rectangle,
     this.onChanged,
+    this.animationDuration = const Duration(milliseconds: 200),
   }) : super(key: key);
 
   @override
@@ -97,7 +99,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     //Setup animation.
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: widget.animationDuration,
     );
 
     _animation = CurvedAnimation(curve: Curves.easeInOut, parent: _controller);
