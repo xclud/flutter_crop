@@ -103,14 +103,14 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     _animation = CurvedAnimation(curve: Curves.easeInOut, parent: _controller);
     _animation.addListener(() {
       if (_animation.isCompleted) {
-        _reCenterImageNoAnimation();
+        _reCenterImage(false);
       }
       setState(() {});
     });
     super.initState();
   }
 
-  void _reCenterImage() {
+  void _reCenterImage([bool animate = true]) {
     //final totalSize = _parent.currentContext.size;
 
     final sz = _key.currentContext!.size!;
@@ -168,75 +168,16 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
     widget.controller._offset = _endOffset;
 
-    if (_controller.isCompleted || _controller.isAnimating) {
-      _controller.reset();
+    if (animate) {
+      if (_controller.isCompleted || _controller.isAnimating) {
+        _controller.reset();
+      }
+      _controller.forward();
+    } else {
+      _startOffset = _endOffset;
     }
-    _controller.forward();
 
     setState(() {});
-
-    _handleOnChanged();
-  }
-
-  void _reCenterImageNoAnimation() {
-    final sz = _key.currentContext!.size!;
-    final s = widget.controller._scale * widget.controller._getMinScale();
-    final w = sz.width;
-    final h = sz.height;
-    final canvas = Rectangle.fromLTWH(0, 0, w, h);
-    final image = RotatedRectangle.fromRectRotationScaleOffset(
-        rect: canvas,
-        rotation: widget.controller._rotation,
-        scale: s,
-        offset: _toVector2(widget.controller._offset));
-
-    _startOffset = widget.controller._offset;
-    _endOffset = widget.controller._offset;
-
-    final ctl = canvas.topLeft;
-    final ctr = canvas.topRight;
-    final cbr = canvas.bottomRight;
-    final cbl = canvas.bottomLeft;
-
-    final ll = Line(image.topLeft, image.bottomLeft);
-    final tt = Line(image.topRight, image.topLeft);
-    final rr = Line(image.bottomRight, image.topRight);
-    final bb = Line(image.bottomLeft, image.bottomRight);
-
-    final tl = ll.project(ctl);
-    final tr = tt.project(ctr);
-    final br = rr.project(cbr);
-    final bl = bb.project(cbl);
-
-    final dtl = ll.calculateSide(ctl);
-    final dtr = tt.calculateSide(ctr);
-    final dbr = rr.calculateSide(cbr);
-    final dbl = bb.calculateSide(cbl);
-
-    if (dtl > 0) {
-      final d = _toOffset(ctl - tl);
-      _endOffset += d;
-    }
-
-    if (dtr > 0) {
-      final d = _toOffset(ctr - tr);
-      _endOffset += d;
-    }
-
-    if (dbr > 0) {
-      final d = _toOffset(cbr - br);
-      _endOffset += d;
-    }
-    if (dbl > 0) {
-      final d = _toOffset(cbl - bl);
-      _endOffset += d;
-    }
-
-    _startOffset = _endOffset;
-    widget.controller._offset = _endOffset;
-
-    setState(() {});
-
     _handleOnChanged();
   }
 
