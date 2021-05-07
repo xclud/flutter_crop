@@ -100,6 +100,12 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.all(8),
               child: Crop(
                 onChanged: (decomposition) {
+                  if (_rotation != decomposition.rotation) {
+                    setState(() {
+                      _rotation = ((decomposition.rotation + 180) % 360) - 180;
+                    });
+                  }
+
                   print(
                       "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
                 },
