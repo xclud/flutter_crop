@@ -1,3 +1,6 @@
+### [0.5.1] - 2021/05/07
+- Support two-finger rotation gesture.
+
 ### [0.5.0] - 2021/03/03
 - Flutter 2.0 and Dart 2.12.0 support.
 
