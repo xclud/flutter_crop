@@ -2,11 +2,13 @@ import 'dart:ui' as ui;
 import 'dart:math';
 
 import 'package:crop/src/crop_render.dart';
-import 'package:crop/src/geometry_helper.dart';
+import 'package:crop/src/line.dart';
 import 'package:crop/src/matrix_decomposition.dart';
+import 'package:crop/src/rotated_rectangle.dart';
+import 'package:crop/src/rectangle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:vector_math/vector_math.dart' as vector_math;
+import 'package:vector_math/vector_math_64.dart' as vm;
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -117,38 +119,52 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
-    final canvas = Rect.fromLTWH(0, 0, w, h);
-    final image = getRotated(
-        canvas, widget.controller._rotation, s, widget.controller._offset);
+    final canvas = Rectangle.fromLTWH(0, 0, w, h);
+    final image = RotatedRectangle.fromRectRotationScaleOffset(
+        rect: canvas,
+        rotation: widget.controller._rotation,
+        scale: s,
+        offset: _toVector2(widget.controller._offset));
+
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ctl = canvas.topLeft;
+    final ctr = canvas.topRight;
+    final cbr = canvas.bottomRight;
+    final cbl = canvas.bottomLeft;
 
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ll = Line(image.topLeft, image.bottomLeft);
+    final tt = Line(image.topRight, image.topLeft);
+    final rr = Line(image.bottomRight, image.topRight);
+    final bb = Line(image.bottomLeft, image.bottomRight);
+
+    final tl = ll.project(ctl);
+    final tr = tt.project(ctr);
+    final br = rr.project(cbr);
+    final bl = bb.project(cbl);
+
+    final dtl = ll.calculateSide(ctl);
+    final dtr = tt.calculateSide(ctr);
+    final dbr = rr.calculateSide(cbr);
+    final dbl = bb.calculateSide(cbl);
 
     if (dtl > 0) {
-      final d = canvas.topLeft - tl;
+      final d = _toOffset(ctl - tl);
       _endOffset += d;
     }
 
     if (dtr > 0) {
-      final d = canvas.topRight - tr;
+      final d = _toOffset(ctr - tr);
       _endOffset += d;
     }
 
     if (dbr > 0) {
-      final d = canvas.bottomRight - br;
+      final d = _toOffset(cbr - br);
       _endOffset += d;
     }
     if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
+      final d = _toOffset(cbl - bl);
       _endOffset += d;
     }
 
@@ -169,38 +185,52 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
-    final canvas = Rect.fromLTWH(0, 0, w, h);
-    final image = getRotated(
-        canvas, widget.controller._rotation, s, widget.controller._offset);
+    final canvas = Rectangle.fromLTWH(0, 0, w, h);
+    final image = RotatedRectangle.fromRectRotationScaleOffset(
+        rect: canvas,
+        rotation: widget.controller._rotation,
+        scale: s,
+        offset: _toVector2(widget.controller._offset));
+
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ctl = canvas.topLeft;
+    final ctr = canvas.topRight;
+    final cbr = canvas.bottomRight;
+    final cbl = canvas.bottomLeft;
 
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ll = Line(image.topLeft, image.bottomLeft);
+    final tt = Line(image.topRight, image.topLeft);
+    final rr = Line(image.bottomRight, image.topRight);
+    final bb = Line(image.bottomLeft, image.bottomRight);
+
+    final tl = ll.project(ctl);
+    final tr = tt.project(ctr);
+    final br = rr.project(cbr);
+    final bl = bb.project(cbl);
+
+    final dtl = ll.calculateSide(ctl);
+    final dtr = tt.calculateSide(ctr);
+    final dbr = rr.calculateSide(cbr);
+    final dbl = bb.calculateSide(cbl);
 
     if (dtl > 0) {
-      final d = canvas.topLeft - tl;
+      final d = _toOffset(ctl - tl);
       _endOffset += d;
     }
 
     if (dtr > 0) {
-      final d = canvas.topRight - tr;
+      final d = _toOffset(ctr - tr);
       _endOffset += d;
     }
 
     if (dbr > 0) {
-      final d = canvas.bottomRight - br;
+      final d = _toOffset(cbr - br);
       _endOffset += d;
     }
     if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
+      final d = _toOffset(cbl - bl);
       _endOffset += d;
     }
 
@@ -233,13 +263,12 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       // A user rotate the image using finger and release is considered as a
       // round. Without this calculation, the rotation degree of the image will
       // be reset.
-      final gestureRotation = vector_math.degrees(details.rotation);
+      final gestureRotation = vm.degrees(details.rotation);
 
       // Within a round of rotation, the details.rotation is provided with
       // incremented value when user rotates. We don't need this, all we
       // want is the offset.
-      final gestureRotationOffset =
-          _previousGestureRotation - gestureRotation;
+      final gestureRotationOffset = _previousGestureRotation - gestureRotation;
 
       // Remove the offset and constraint the degree scope to 0° <= degree <=
       // 360°. Constraint the scope is unnecessary, however, by doing this,
@@ -266,7 +295,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final r = vector_math.radians(widget.controller._rotation);
+    final r = vm.radians(widget.controller._rotation);
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value)!;
 
@@ -421,7 +450,7 @@ class CropController extends ChangeNotifier {
   }
 
   double _getMinScale() {
-    final r = (_rotation % 360) / 180.0 * pi;
+    final r = vm.radians(_rotation % 360);
     final rabs = r.abs();
 
     final sinr = sin(rabs).abs();
@@ -453,3 +482,6 @@ class CropController extends ChangeNotifier {
     return _cropCallback!.call(pixelRatio);
   }
 }
+
+vm.Vector2 _toVector2(Offset offset) => vm.Vector2(offset.dx, offset.dy);
+Offset _toOffset(vm.Vector2 v) => Offset(v.x, v.y);
