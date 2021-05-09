@@ -96,6 +96,14 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller._cropCallback = _crop;
     widget.controller.addListener(_reCenterImage);
 
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+      await Future.delayed(Duration(seconds: 1));
+      while (mounted) {
+        _recenter();
+        await Future.delayed(Duration(milliseconds: 1000));
+      }
+    });
+
     //Setup animation.
     _controller = AnimationController(
       vsync: this,
@@ -110,6 +118,49 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       setState(() {});
     });
     super.initState();
+  }
+
+  void _recenter() {
+    final sz = _key.currentContext!.size!;
+    final s = widget.controller._scale * widget.controller._getMinScale();
+    final w = sz.width;
+    final h = sz.height;
+    final offset = _toVector2(widget.controller._offset);
+    final canvas = Rectangle.fromLTWH(0, 0, w, h);
+    final obb = Obb2(
+      center: offset + canvas.center,
+      width: w * s,
+      height: h * s,
+      rotation: widget.controller._rotation,
+    );
+
+    final bakedObb = obb.bake();
+
+    final ab0 = canvas.topEdge;
+    final bc0 = canvas.rightEdge;
+    final cd0 = canvas.bottomEdge;
+    final da0 = canvas.leftEdge;
+
+    print(ab0);
+    print(bc0);
+    print(cd0);
+    print(da0);
+
+    final ab1 = bakedObb.topEdge;
+    final bc1 = bakedObb.rightEdge;
+    final cd1 = bakedObb.bottomEdge;
+    final da1 = bakedObb.leftEdge;
+
+    print(ab1);
+    print(bc1);
+    print(cd1);
+    print(da1);
+
+    final da0da1 = da0.intersect(da1);
+    final bc0da1 = bc0.intersect(da1);
+
+    print('DA0-DA1: $da0da1');
+    print('BC0-DA1: $bc0da1');
   }
 
   void _reCenterImage([bool animate = true]) {
