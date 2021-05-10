@@ -141,26 +141,60 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final cd0 = canvas.bottomEdge;
     final da0 = canvas.leftEdge;
 
-    print(ab0);
-    print(bc0);
-    print(cd0);
-    print(da0);
-
     final ab1 = bakedObb.topEdge;
     final bc1 = bakedObb.rightEdge;
     final cd1 = bakedObb.bottomEdge;
     final da1 = bakedObb.leftEdge;
+
+    print(ab0);
+    print(bc0);
+    print(cd0);
+    print(da0);
 
     print(ab1);
     print(bc1);
     print(cd1);
     print(da1);
 
-    final da0da1 = da0.intersect(da1);
-    final bc0da1 = bc0.intersect(da1);
+    final ab0ab1 = ab0.intersect(ab1);
+    final bc0ab1 = bc0.intersect(ab1);
+    final cd0ab1 = cd0.intersect(ab1);
+    final da0ab1 = da0.intersect(ab1);
 
-    print('DA0-DA1: $da0da1');
+    final ab0bc1 = ab0.intersect(bc1);
+    final bc0bc1 = bc0.intersect(bc1);
+    final cd0bc1 = cd0.intersect(bc1);
+    final da0bc1 = da0.intersect(bc1);
+
+    final ab0cd1 = ab0.intersect(cd1);
+    final bc0cd1 = bc0.intersect(cd1);
+    final cd0cd1 = cd0.intersect(cd1);
+    final da0cd1 = da0.intersect(cd1);
+
+    final ab0da1 = ab0.intersect(da1);
+    final bc0da1 = bc0.intersect(da1);
+    final cd0da1 = cd0.intersect(da1);
+    final da0da1 = da0.intersect(da1);
+
+    print('AB0-AB1: $ab0ab1');
+    print('BC0-AB1: $bc0ab1');
+    print('CD0-AB1: $cd0ab1');
+    print('DA0-AB1: $da0ab1');
+
+    print('AB0-BC1: $ab0bc1');
+    print('BC0-BC1: $bc0bc1');
+    print('CD0-BC1: $cd0bc1');
+    print('DA0-BC1: $da0bc1');
+
+    print('AB0-CD1: $ab0cd1');
+    print('BC0-CD1: $bc0cd1');
+    print('CD0-CD1: $cd0cd1');
+    print('DA0-CD1: $da0cd1');
+
+    print('AB0-DA1: $ab0da1');
     print('BC0-DA1: $bc0da1');
+    print('CD0-DA1: $cd0da1');
+    print('DA0-DA1: $da0da1');
   }
 
   void _reCenterImage([bool animate = true]) {
