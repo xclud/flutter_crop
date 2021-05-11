@@ -146,15 +146,15 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final cd1 = bakedObb.bottomEdge;
     final da1 = bakedObb.leftEdge;
 
-    print(ab0);
-    print(bc0);
-    print(cd0);
-    print(da0);
+    // print(ab0);
+    // print(bc0);
+    // print(cd0);
+    // print(da0);
 
-    print(ab1);
-    print(bc1);
-    print(cd1);
-    print(da1);
+    // print(ab1);
+    // print(bc1);
+    // print(cd1);
+    // print(da1);
 
     final ab0ab1 = ab0.intersect(ab1);
     final bc0ab1 = bc0.intersect(ab1);
@@ -176,25 +176,59 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final cd0da1 = cd0.intersect(da1);
     final da0da1 = da0.intersect(da1);
 
-    print('AB0-AB1: $ab0ab1');
-    print('BC0-AB1: $bc0ab1');
-    print('CD0-AB1: $cd0ab1');
-    print('DA0-AB1: $da0ab1');
+    // print('AB0-AB1: $ab0ab1');
+    // print('BC0-AB1: $bc0ab1');
+    // print('CD0-AB1: $cd0ab1');
+    // print('DA0-AB1: $da0ab1');
 
-    print('AB0-BC1: $ab0bc1');
-    print('BC0-BC1: $bc0bc1');
-    print('CD0-BC1: $cd0bc1');
-    print('DA0-BC1: $da0bc1');
+    // print('AB0-BC1: $ab0bc1');
+    // print('BC0-BC1: $bc0bc1');
+    // print('CD0-BC1: $cd0bc1');
+    // print('DA0-BC1: $da0bc1');
 
-    print('AB0-CD1: $ab0cd1');
-    print('BC0-CD1: $bc0cd1');
-    print('CD0-CD1: $cd0cd1');
-    print('DA0-CD1: $da0cd1');
+    // print('AB0-CD1: $ab0cd1');
+    // print('BC0-CD1: $bc0cd1');
+    // print('CD0-CD1: $cd0cd1');
+    // print('DA0-CD1: $da0cd1');
 
-    print('AB0-DA1: $ab0da1');
-    print('BC0-DA1: $bc0da1');
-    print('CD0-DA1: $cd0da1');
-    print('DA0-DA1: $da0da1');
+    // print('AB0-DA1: $ab0da1');
+    // print('BC0-DA1: $bc0da1');
+    // print('CD0-DA1: $cd0da1');
+    // print('DA0-DA1: $da0da1');
+
+    final top = max4(da0da1?.y, da0ab1?.y, bc0da1?.y, bc0ab1?.y);
+    var bottom = min4(da0cd1?.y, da0bc1?.y, bc0bc1?.y, bc0cd1?.y);
+
+    final left = max4(ab0da1?.x, ab0cd1?.x, cd0da1?.x, cd0cd1?.x);
+    var right = min4(cd0bc1?.x, cd0ab1?.x, ab0bc1?.x, ab0ab1?.x);
+
+    if (right != null) {
+      right -= canvas.width;
+    }
+
+    if (bottom != null) {
+      bottom -= canvas.height;
+    }
+
+    final msg = <String>[];
+
+    if (top != null && top > 0) {
+      msg.add('Top: $top');
+    }
+
+    if (bottom != null && bottom < 0) {
+      msg.add('Bottom: ${-bottom}');
+    }
+
+    if (left != null && left > 0) {
+      msg.add('Left: $left');
+    }
+
+    if (right != null && right < 0) {
+      msg.add('Right: ${-right}');
+    }
+
+    print(msg.join(', '));
   }
 
   void _reCenterImage([bool animate = true]) {
@@ -515,3 +549,67 @@ class CropController extends ChangeNotifier {
 
 vm.Vector2 _toVector2(Offset offset) => vm.Vector2(offset.dx, offset.dy);
 Offset _toOffset(vm.Vector2 v) => Offset(v.x, v.y);
+
+double? min4(double? a, double? b, double? c, double? d) {
+  double? m;
+
+  final all = [a, b, c, d];
+
+  for (final num in all) {
+    if (num == null) continue;
+
+    if (m == null || num < m) {
+      m = num;
+    }
+  }
+
+  return m;
+}
+
+double? max4(double? a, double? b, double? c, double? d) {
+  double? m;
+
+  final all = [a, b, c, d];
+
+  for (final num in all) {
+    if (num == null) continue;
+
+    if (m == null || num > m) {
+      m = num;
+    }
+  }
+
+  return m;
+}
+
+double? min2(double? a, double? b) {
+  double? m;
+
+  final all = [a, b];
+
+  for (final num in all) {
+    if (num == null) continue;
+
+    if (m == null || num < m) {
+      m = num;
+    }
+  }
+
+  return m;
+}
+
+double? max2(double? a, double? b) {
+  double? m;
+
+  final all = [a, b];
+
+  for (final num in all) {
+    if (num == null) continue;
+
+    if (m == null || num > m) {
+      m = num;
+    }
+  }
+
+  return m;
+}
