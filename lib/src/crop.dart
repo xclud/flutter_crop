@@ -99,7 +99,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await Future.delayed(Duration(seconds: 1));
       while (mounted) {
-        _recenter();
+        //_recenter();
         await Future.delayed(Duration(milliseconds: 1000));
       }
     });
@@ -120,118 +120,144 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     super.initState();
   }
 
-  void _recenter() {
+  void _recenter([bool animate = true]) {
     final sz = _key.currentContext!.size!;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
-    final offset = _toVector2(widget.controller._offset);
     final canvas = Rectangle.fromLTWH(0, 0, w, h);
-    final obb = Obb2(
-      center: offset + canvas.center,
-      width: w * s,
-      height: h * s,
-      rotation: widget.controller._rotation,
-    );
+    var offset = _toVector2(widget.controller._offset);
 
-    final bakedObb = obb.bake();
+    _startOffset = widget.controller._offset;
+    _endOffset = widget.controller._offset;
 
-    final ab0 = canvas.topEdge;
-    final bc0 = canvas.rightEdge;
-    final cd0 = canvas.bottomEdge;
-    final da0 = canvas.leftEdge;
+    vm.Vector2 _integrate() {
+      final obb = Obb2(
+        center: offset + canvas.center,
+        width: w * s,
+        height: h * s,
+        rotation: widget.controller._rotation,
+      );
 
-    final ab1 = bakedObb.topEdge;
-    final bc1 = bakedObb.rightEdge;
-    final cd1 = bakedObb.bottomEdge;
-    final da1 = bakedObb.leftEdge;
+      final bakedObb = obb.bake();
 
-    // print(ab0);
-    // print(bc0);
-    // print(cd0);
-    // print(da0);
+      final ab0 = canvas.topEdge;
+      final bc0 = canvas.rightEdge;
+      final cd0 = canvas.bottomEdge;
+      final da0 = canvas.leftEdge;
 
-    // print(ab1);
-    // print(bc1);
-    // print(cd1);
-    // print(da1);
+      final ab1 = bakedObb.topEdge;
+      final bc1 = bakedObb.rightEdge;
+      final cd1 = bakedObb.bottomEdge;
+      final da1 = bakedObb.leftEdge;
 
-    final ab0ab1 = ab0.intersect(ab1);
-    final bc0ab1 = bc0.intersect(ab1);
-    final cd0ab1 = cd0.intersect(ab1);
-    final da0ab1 = da0.intersect(ab1);
+      final ab0ab1 = ab0.intersect(ab1);
+      final bc0ab1 = bc0.intersect(ab1);
+      final cd0ab1 = cd0.intersect(ab1);
+      final da0ab1 = da0.intersect(ab1);
 
-    final ab0bc1 = ab0.intersect(bc1);
-    final bc0bc1 = bc0.intersect(bc1);
-    final cd0bc1 = cd0.intersect(bc1);
-    final da0bc1 = da0.intersect(bc1);
+      final ab0bc1 = ab0.intersect(bc1);
+      final bc0bc1 = bc0.intersect(bc1);
+      final cd0bc1 = cd0.intersect(bc1);
+      final da0bc1 = da0.intersect(bc1);
 
-    final ab0cd1 = ab0.intersect(cd1);
-    final bc0cd1 = bc0.intersect(cd1);
-    final cd0cd1 = cd0.intersect(cd1);
-    final da0cd1 = da0.intersect(cd1);
+      final ab0cd1 = ab0.intersect(cd1);
+      final bc0cd1 = bc0.intersect(cd1);
+      final cd0cd1 = cd0.intersect(cd1);
+      final da0cd1 = da0.intersect(cd1);
 
-    final ab0da1 = ab0.intersect(da1);
-    final bc0da1 = bc0.intersect(da1);
-    final cd0da1 = cd0.intersect(da1);
-    final da0da1 = da0.intersect(da1);
+      final ab0da1 = ab0.intersect(da1);
+      final bc0da1 = bc0.intersect(da1);
+      final cd0da1 = cd0.intersect(da1);
+      final da0da1 = da0.intersect(da1);
 
-    // print('AB0-AB1: $ab0ab1');
-    // print('BC0-AB1: $bc0ab1');
-    // print('CD0-AB1: $cd0ab1');
-    // print('DA0-AB1: $da0ab1');
+      final top = max4(da0da1?.y, da0ab1?.y, bc0da1?.y, bc0ab1?.y);
+      var bottom = min4(da0cd1?.y, da0bc1?.y, bc0bc1?.y, bc0cd1?.y);
 
-    // print('AB0-BC1: $ab0bc1');
-    // print('BC0-BC1: $bc0bc1');
-    // print('CD0-BC1: $cd0bc1');
-    // print('DA0-BC1: $da0bc1');
+      final left = max4(ab0da1?.x, ab0cd1?.x, cd0da1?.x, cd0cd1?.x);
+      var right = min4(cd0bc1?.x, cd0ab1?.x, ab0bc1?.x, ab0ab1?.x);
 
-    // print('AB0-CD1: $ab0cd1');
-    // print('BC0-CD1: $bc0cd1');
-    // print('CD0-CD1: $cd0cd1');
-    // print('DA0-CD1: $da0cd1');
+      if (right != null) {
+        right.value -= canvas.width;
+      }
 
-    // print('AB0-DA1: $ab0da1');
-    // print('BC0-DA1: $bc0da1');
-    // print('CD0-DA1: $cd0da1');
-    // print('DA0-DA1: $da0da1');
+      if (bottom != null) {
+        bottom.value -= canvas.height;
+      }
 
-    final top = max4(da0da1?.y, da0ab1?.y, bc0da1?.y, bc0ab1?.y);
-    var bottom = min4(da0cd1?.y, da0bc1?.y, bc0bc1?.y, bc0cd1?.y);
+      final msg = <String>[];
 
-    final left = max4(ab0da1?.x, ab0cd1?.x, cd0da1?.x, cd0cd1?.x);
-    var right = min4(cd0bc1?.x, cd0ab1?.x, ab0bc1?.x, ab0ab1?.x);
+      if (top != null && top.value > 0) {
+        msg.add('Top: ${top.value}');
+      }
 
-    if (right != null) {
-      right -= canvas.width;
+      if (bottom != null && bottom.value < 0) {
+        msg.add('Bottom: ${-bottom.value}');
+      }
+
+      if (left != null && left.value > 0) {
+        msg.add('Left: ${left.value}');
+      }
+
+      if (right != null && right.value < 0) {
+        msg.add('Right: ${-right.value}');
+      }
+
+      var x = 0.0;
+      var y = 0.0;
+
+      if (top != null && top.value > 0) {
+        y += top.value;
+      }
+
+      if (bottom != null && bottom.value < 0) {
+        y += bottom.value;
+      }
+
+      if (left != null && left.value > 0) {
+        x += left.value;
+      }
+
+      if (right != null && right.value < 0) {
+        x += right.value;
+      }
+
+      print(msg.join(', '));
+
+      return vm.Vector2(x, y);
     }
 
-    if (bottom != null) {
-      bottom -= canvas.height;
+    const int integration_steps = 10;
+
+    for (int i = 0; i < integration_steps; i++) {
+      var dir = _integrate();
+
+      if (dir.length <= 0.00000001) continue;
+
+      offset.x -= dir.x;
+      offset.y -= dir.y;
+
+      print('MoveTo: $dir');
     }
 
-    final msg = <String>[];
+    widget.controller._offset = _toOffset(offset);
 
-    if (top != null && top > 0) {
-      msg.add('Top: $top');
+    if (animate) {
+      if (_controller.isCompleted || _controller.isAnimating) {
+        _controller.reset();
+      }
+      _controller.forward();
+    } else {
+      _startOffset = _endOffset;
     }
 
-    if (bottom != null && bottom < 0) {
-      msg.add('Bottom: ${-bottom}');
-    }
-
-    if (left != null && left > 0) {
-      msg.add('Left: $left');
-    }
-
-    if (right != null && right < 0) {
-      msg.add('Right: ${-right}');
-    }
-
-    print(msg.join(', '));
+    setState(() {});
+    _handleOnChanged();
   }
 
   void _reCenterImage([bool animate = true]) {
+    _recenter(animate);
+    return;
     //final totalSize = _parent.currentContext.size;
 
     final sz = _key.currentContext!.size!;
@@ -550,36 +576,48 @@ class CropController extends ChangeNotifier {
 vm.Vector2 _toVector2(Offset offset) => vm.Vector2(offset.dx, offset.dy);
 Offset _toOffset(vm.Vector2 v) => Offset(v.x, v.y);
 
-double? min4(double? a, double? b, double? c, double? d) {
-  double? m;
+_IndexValue<double>? min4(double? a, double? b, double? c, double? d) {
+  int? index;
 
   final all = [a, b, c, d];
 
-  for (final num in all) {
+  for (var i = 0; i < all.length; i++) {
+    final num = all[i];
+
     if (num == null) continue;
 
-    if (m == null || num < m) {
-      m = num;
+    if (index == null || num < index) {
+      index = i;
     }
   }
 
-  return m;
+  if (index == null) {
+    return null;
+  }
+
+  return _IndexValue(index, all[index]!);
 }
 
-double? max4(double? a, double? b, double? c, double? d) {
-  double? m;
+_IndexValue<double>? max4(double? a, double? b, double? c, double? d) {
+  int? index;
 
   final all = [a, b, c, d];
 
-  for (final num in all) {
+  for (var i = 0; i < all.length; i++) {
+    final num = all[i];
+
     if (num == null) continue;
 
-    if (m == null || num > m) {
-      m = num;
+    if (index == null || num > index) {
+      index = i;
     }
   }
 
-  return m;
+  if (index == null) {
+    return null;
+  }
+
+  return _IndexValue(index, all[index]!);
 }
 
 double? min2(double? a, double? b) {
@@ -612,4 +650,22 @@ double? max2(double? a, double? b) {
   }
 
   return m;
+}
+
+class _IndexValue<T> {
+  int index;
+  T value;
+
+  _IndexValue(this.index, this.value);
+}
+
+vm.Vector2? _calculateDirection(
+    double? top, double? left, double? bottom, double? right) {
+  var dir = min4(top, left, bottom, right);
+
+  if (dir == null) {
+    return null;
+  }
+
+  return null;
 }
