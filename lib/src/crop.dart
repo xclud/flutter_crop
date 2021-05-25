@@ -2,10 +2,11 @@ import 'dart:ui' as ui;
 import 'dart:math';
 
 import 'package:crop/src/crop_render.dart';
-import 'package:crop/src/geometry_helper.dart';
+import 'package:collision/collision.dart';
 import 'package:crop/src/matrix_decomposition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:vector_math/vector_math_64.dart' as vm;
 
 class Crop extends StatefulWidget {
   final Widget child;
@@ -20,6 +21,7 @@ class Crop extends StatefulWidget {
   final bool interactive;
   final BoxShape shape;
   final ValueChanged<MatrixDecomposition>? onChanged;
+  final Duration animationDuration;
 
   Crop({
     Key? key,
@@ -35,6 +37,7 @@ class Crop extends StatefulWidget {
     this.interactive: true,
     this.shape: BoxShape.rectangle,
     this.onChanged,
+    this.animationDuration = const Duration(milliseconds: 200),
   }) : super(key: key);
 
   @override
@@ -70,6 +73,13 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   Offset _previousOffset = Offset.zero;
   Offset _startOffset = Offset.zero;
   Offset _endOffset = Offset.zero;
+  double _previousGestureRotation = 0.0;
+
+  /// Store the pointer count (finger involved to perform scaling).
+  ///
+  /// This is used to compare with the value in
+  /// [ScaleUpdateDetails.pointerCount]. Check [_onScaleUpdate] for detail.
+  int _previousPointerCount = 0;
 
   late AnimationController _controller;
   late CurvedAnimation _animation;
@@ -89,118 +99,91 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     //Setup animation.
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: widget.animationDuration,
     );
 
     _animation = CurvedAnimation(curve: Curves.easeInOut, parent: _controller);
     _animation.addListener(() {
       if (_animation.isCompleted) {
-        _reCenterImageNoAnimation();
+        _reCenterImage(false);
       }
       setState(() {});
     });
     super.initState();
   }
 
-  void _reCenterImage() {
+  void _reCenterImage([bool animate = true]) {
     //final totalSize = _parent.currentContext.size;
 
     final sz = _key.currentContext!.size!;
     final s = widget.controller._scale * widget.controller._getMinScale();
     final w = sz.width;
     final h = sz.height;
-    final canvas = Rect.fromLTWH(0, 0, w, h);
-    final image = getRotated(
-        canvas, widget.controller._rotation, s, widget.controller._offset);
+    final offset = _toVector2(widget.controller._offset);
+    final canvas = Rectangle.fromLTWH(0, 0, w, h);
+    final obb = Obb2(
+      center: offset + canvas.center,
+      width: w * s,
+      height: h * s,
+      rotation: widget.controller._rotation,
+    );
+
+    final bakedObb = obb.bake();
+
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ctl = canvas.topLeft;
+    final ctr = canvas.topRight;
+    final cbr = canvas.bottomRight;
+    final cbl = canvas.bottomLeft;
 
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
+    final ll = Line(bakedObb.topLeft, bakedObb.bottomLeft);
+    final tt = Line(bakedObb.topRight, bakedObb.topLeft);
+    final rr = Line(bakedObb.bottomRight, bakedObb.topRight);
+    final bb = Line(bakedObb.bottomLeft, bakedObb.bottomRight);
+
+    final tl = ll.project(ctl);
+    final tr = tt.project(ctr);
+    final br = rr.project(cbr);
+    final bl = bb.project(cbl);
+
+    final dtl = ll.distanceToPoint(ctl);
+    final dtr = tt.distanceToPoint(ctr);
+    final dbr = rr.distanceToPoint(cbr);
+    final dbl = bb.distanceToPoint(cbl);
 
     if (dtl > 0) {
-      final d = canvas.topLeft - tl;
+      final d = _toOffset(ctl - tl);
       _endOffset += d;
     }
 
     if (dtr > 0) {
-      final d = canvas.topRight - tr;
+      final d = _toOffset(ctr - tr);
       _endOffset += d;
     }
 
     if (dbr > 0) {
-      final d = canvas.bottomRight - br;
+      final d = _toOffset(cbr - br);
       _endOffset += d;
     }
     if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
+      final d = _toOffset(cbl - bl);
       _endOffset += d;
     }
 
     widget.controller._offset = _endOffset;
 
-    if (_controller.isCompleted || _controller.isAnimating) {
-      _controller.reset();
+    if (animate) {
+      if (_controller.isCompleted || _controller.isAnimating) {
+        _controller.reset();
+      }
+      _controller.forward();
+    } else {
+      _startOffset = _endOffset;
     }
-    _controller.forward();
 
     setState(() {});
-
-    _handleOnChanged();
-  }
-
-  void _reCenterImageNoAnimation() {
-    final sz = _key.currentContext!.size!;
-    final s = widget.controller._scale * widget.controller._getMinScale();
-    final w = sz.width;
-    final h = sz.height;
-    final canvas = Rect.fromLTWH(0, 0, w, h);
-    final image = getRotated(
-        canvas, widget.controller._rotation, s, widget.controller._offset);
-    _startOffset = widget.controller._offset;
-    _endOffset = widget.controller._offset;
-
-    final tl = line(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final tr = line(image.topLeft, image.topRight, canvas.topRight);
-    final br = line(image.bottomRight, image.topRight, canvas.bottomRight);
-    final bl = line(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-    final dtl = side(image.topLeft, image.bottomLeft, canvas.topLeft);
-    final dtr = side(image.topRight, image.topLeft, canvas.topRight);
-    final dbr = side(image.bottomRight, image.topRight, canvas.bottomRight);
-    final dbl = side(image.bottomLeft, image.bottomRight, canvas.bottomLeft);
-
-    if (dtl > 0) {
-      final d = canvas.topLeft - tl;
-      _endOffset += d;
-    }
-
-    if (dtr > 0) {
-      final d = canvas.topRight - tr;
-      _endOffset += d;
-    }
-
-    if (dbr > 0) {
-      final d = canvas.bottomRight - br;
-      _endOffset += d;
-    }
-    if (dbl > 0) {
-      final d = canvas.bottomLeft - bl;
-      _endOffset += d;
-    }
-
-    _startOffset = _endOffset;
-    widget.controller._offset = _endOffset;
-
-    setState(() {});
-
     _handleOnChanged();
   }
 
@@ -210,6 +193,39 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller._scale = _previousScale * details.scale;
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
+
+    // In the case where lesser than 2 fingers involved in scaling, we ignore
+    // the rotation handling.
+    if (details.pointerCount > 1) {
+      // In the first touch, we reset all the values.
+      if (_previousPointerCount != details.pointerCount) {
+        _previousPointerCount = details.pointerCount;
+        _previousGestureRotation = 0.0;
+      }
+
+      // Instead of directly embracing the details.rotation, we need to
+      // perform calculation to ensure that each round of rotation is smooth.
+      // A user rotate the image using finger and release is considered as a
+      // round. Without this calculation, the rotation degree of the image will
+      // be reset.
+      final gestureRotation = vm.degrees(details.rotation);
+
+      // Within a round of rotation, the details.rotation is provided with
+      // incremented value when user rotates. We don't need this, all we
+      // want is the offset.
+      final gestureRotationOffset = _previousGestureRotation - gestureRotation;
+
+      // Remove the offset and constraint the degree scope to 0° <= degree <=
+      // 360°. Constraint the scope is unnecessary, however, by doing this,
+      // it would make our life easier when debugging.
+      final rotationAfterCalculation =
+          (widget.controller.rotation - gestureRotationOffset) % 360;
+
+      /* details.rotation is in radians, convert this to degrees and set
+        our rotation */
+      widget.controller._rotation = rotationAfterCalculation;
+      _previousGestureRotation = gestureRotation;
+    }
 
     setState(() {});
     _handleOnChanged();
@@ -224,7 +240,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final r = widget.controller._rotation / 180.0 * pi;
+    final r = vm.radians(widget.controller._rotation);
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value)!;
 
@@ -290,6 +306,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       onScaleUpdate: _onScaleUpdate,
       onScaleEnd: (details) {
         widget.controller._scale = max(widget.controller._scale, 1);
+        _previousPointerCount = 0;
         _reCenterImage();
       },
     );
@@ -378,7 +395,7 @@ class CropController extends ChangeNotifier {
   }
 
   double _getMinScale() {
-    final r = (_rotation % 360) / 180.0 * pi;
+    final r = vm.radians(_rotation % 360);
     final rabs = r.abs();
 
     final sinr = sin(rabs).abs();
@@ -410,3 +427,6 @@ class CropController extends ChangeNotifier {
     return _cropCallback!.call(pixelRatio);
   }
 }
+
+vm.Vector2 _toVector2(Offset offset) => vm.Vector2(offset.dx, offset.dy);
+Offset _toOffset(vm.Vector2 v) => Offset(v.x, v.y);

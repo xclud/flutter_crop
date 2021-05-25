@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 import 'package:app/centered_slider_track_shape.dart';
 import 'package:flutter/material.dart';
 import 'package:crop/crop.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -80,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('Crop Demo'),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(FontAwesome.github),
+          icon: Icon(Icons.link),
           onPressed: () {
             launch('https://github.com/xclud/flutter_crop');
           },
@@ -101,6 +100,12 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.all(8),
               child: Crop(
                 onChanged: (decomposition) {
+                  if (_rotation != decomposition.rotation) {
+                    setState(() {
+                      _rotation = ((decomposition.rotation + 180) % 360) - 180;
+                    });
+                  }
+
                   print(
                       "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
                 },
@@ -231,7 +236,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 Future<dynamic> _saveScreenShot(ui.Image img) async {
   var byteData = await img.toByteData(format: ui.ImageByteFormat.png);
-  var buffer = byteData.buffer.asUint8List();
+  var buffer = byteData!.buffer.asUint8List();
   final result = await ImageGallerySaver.saveImage(buffer);
   print(result);
 

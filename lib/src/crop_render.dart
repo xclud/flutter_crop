@@ -1,4 +1,3 @@
-import 'package:crop/src/geometry_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -77,7 +76,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
 
     if (child != null) {
       final forcedSize =
-          getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+          _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
       child!.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
     }
   }
@@ -89,7 +88,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     );
 
     final forcedSize =
-        getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+        _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
     Rect rect = Rect.fromCenter(
         center: center, width: forcedSize.width, height: forcedSize.height);
 
@@ -116,7 +115,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     }
 
     final forcedSize =
-        getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+        _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
 
     if (child != null) {
       final Offset tmp = (size - forcedSize) as Offset;
@@ -135,4 +134,24 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       );
     }
   }
+}
+
+Size _getSizeToFitByRatio(
+    double imageAspectRatio, double containerWidth, double containerHeight) {
+  var targetAspectRatio = containerWidth / containerHeight;
+
+  // no need to adjust the size if current size is square
+  var adjustedWidth = containerWidth;
+  var adjustedHeight = containerHeight;
+
+  // get the larger aspect ratio of the two
+  // if aspect ratio is 1 then no adjustment needed
+  if (imageAspectRatio > targetAspectRatio) {
+    adjustedHeight = containerWidth / imageAspectRatio;
+  } else if (imageAspectRatio < targetAspectRatio) {
+    adjustedWidth = containerHeight * imageAspectRatio;
+  }
+
+  // set the adjusted size (same if square)
+  return Size(adjustedWidth, adjustedHeight);
 }
