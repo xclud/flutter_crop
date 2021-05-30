@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
 
+/// Used for cropping the [child] widget.
 class Crop extends StatefulWidget {
   final Widget child;
   final CropController controller;
@@ -348,6 +349,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
 typedef _CropCallback = Future<ui.Image> Function(double pixelRatio);
 
+/// The controller used to control the rotation, scale and actual cropping.
 class CropController extends ChangeNotifier {
   double _aspectRatio = 1;
   double _rotation = 0;
@@ -355,35 +357,49 @@ class CropController extends ChangeNotifier {
   Offset _offset = Offset.zero;
   _CropCallback? _cropCallback;
 
+  /// Gets the current aspect ratio.
   double get aspectRatio => _aspectRatio;
+
+  /// Sets the desired aspect ratio.
   set aspectRatio(double value) {
     _aspectRatio = value;
     notifyListeners();
   }
 
+  /// Gets the current scale.
   double get scale => max(_scale, 1);
+
+  /// Sets the desired scale.
   set scale(double value) {
     _scale = max(value, 1);
     notifyListeners();
   }
 
+  /// Gets the current rotation.
   double get rotation => _rotation;
+
+  /// Sets the desired rotation.
   set rotation(double value) {
     _rotation = value;
     notifyListeners();
   }
 
+  /// Gets the current offset.
   Offset get offset => _offset;
+
+  /// Sets the desired offset.
   set offset(Offset value) {
     _offset = value;
     notifyListeners();
   }
 
+  /// Gets the transformation matrix.
   Matrix4 get transform => Matrix4.identity()
     ..translate(_offset.dx, _offset.dy, 0)
     ..rotateZ(_rotation)
     ..scale(_scale, _scale, 1);
 
+  /// Constructor
   CropController({
     double aspectRatio: 1.0,
     double scale: 1.0,

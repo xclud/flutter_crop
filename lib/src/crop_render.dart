@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+/// Render object widget with a [RenderCrop] inside.
 class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   final Key? key;
   final double aspectRatio;
   final Color dimColor;
   final Color backgroundColor;
   final BoxShape shape;
+
   CropRenderObjectWidget({
     required Widget child,
     required this.aspectRatio,
@@ -15,6 +17,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     this.backgroundColor: Colors.black,
     this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
   }) : super(key: key, child: child);
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()
@@ -60,6 +63,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   }
 }
 
+/// RenderBox for [Crop].
 class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   double? aspectRatio;
   Color? dimColor;
