@@ -13,8 +13,8 @@ class CenteredRectangularSliderTrackShape extends RectangularSliderTrackShape {
     required Animation<double> enableAnimation,
     required ui.Offset thumbCenter,
     required ui.TextDirection textDirection,
-    bool isEnabled: false,
-    bool isDiscrete: false,
+    bool isEnabled = false,
+    bool isDiscrete = false,
   }) {
     // If the slider track height is less than or equal to 0, then it makes no
     // difference whether the track is painted or not, therefore the painting
@@ -67,8 +67,9 @@ class CenteredRectangularSliderTrackShape extends RectangularSliderTrackShape {
           trackRect.top,
           min(trackCenter.dx, thumbCenter.dx - thumbSize.width / 2),
           trackRect.bottom);
-      if (!leftTrackSegment.isEmpty)
+      if (!leftTrackSegment.isEmpty) {
         context.canvas.drawRect(leftTrackSegment, inactivePaint);
+      }
 
       final activeRect = Rect.fromLTRB(
           trackCenter.dx, trackRect.top, thumbCenter.dx, trackRect.bottom);

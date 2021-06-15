@@ -3,19 +3,18 @@ import 'package:flutter/rendering.dart';
 
 /// Render object widget with a [RenderCrop] inside.
 class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
-  final Key? key;
   final double aspectRatio;
   final Color dimColor;
   final Color backgroundColor;
   final BoxShape shape;
 
-  CropRenderObjectWidget({
+  const CropRenderObjectWidget({
     required Widget child,
     required this.aspectRatio,
     required this.shape,
-    this.key,
-    this.backgroundColor: Colors.black,
-    this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
+    Key? key,
+    this.backgroundColor = Colors.black,
+    this.dimColor = const Color.fromRGBO(0, 0, 0, 0.8),
   }) : super(key: key, child: child);
 
   @override
@@ -111,6 +110,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {}
 
+  @override
   void paint(PaintingContext context, Offset offset) {
     final bounds = offset & size;
 

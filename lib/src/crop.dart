@@ -24,19 +24,19 @@ class Crop extends StatefulWidget {
   final ValueChanged<MatrixDecomposition>? onChanged;
   final Duration animationDuration;
 
-  Crop({
+  const Crop({
     Key? key,
     required this.child,
     required this.controller,
-    this.padding: const EdgeInsets.all(8),
-    this.dimColor: const Color.fromRGBO(0, 0, 0, 0.8),
-    this.backgroundColor: Colors.black,
+    this.padding = const EdgeInsets.all(8),
+    this.dimColor = const Color.fromRGBO(0, 0, 0, 0.8),
+    this.backgroundColor = Colors.black,
     this.background,
     this.foreground,
     this.helper,
     this.overlay,
-    this.interactive: true,
-    this.shape: BoxShape.rectangle,
+    this.interactive = true,
+    this.shape = BoxShape.rectangle,
     this.onChanged,
     this.animationDuration = const Duration(milliseconds: 200),
   }) : super(key: key);
@@ -401,9 +401,9 @@ class CropController extends ChangeNotifier {
 
   /// Constructor
   CropController({
-    double aspectRatio: 1.0,
-    double scale: 1.0,
-    double rotation: 0,
+    double aspectRatio = 1.0,
+    double scale = 1.0,
+    double rotation = 0,
   }) {
     _aspectRatio = aspectRatio;
     _scale = scale;
@@ -435,7 +435,7 @@ class CropController extends ChangeNotifier {
   /// [window.devicePixelRatio] for the device, so specifying 1.0 (the default)
   /// will give you a 1:1 mapping between logical pixels and the output pixels
   /// in the image.
-  Future<ui.Image> crop({double pixelRatio: 1}) {
+  Future<ui.Image> crop({double pixelRatio = 1}) {
     if (_cropCallback == null) {
       return Future.value(null);
     }

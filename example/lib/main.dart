@@ -6,9 +6,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,12 +18,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -39,18 +42,18 @@ class _MyHomePageState extends State<MyHomePage> {
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(
-            title: Text('Crop Result'),
+            title: const Text('Crop Result'),
             centerTitle: true,
             actions: [
               Builder(
                 builder: (context) => IconButton(
-                  icon: Icon(Icons.save),
+                  icon: const Icon(Icons.save),
                   onPressed: () async {
                     final status = await Permission.storage.request();
                     if (status == PermissionStatus.granted) {
                       await _saveScreenShot(cropped);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Saved to gallery.'),
                         ),
                       );
@@ -76,10 +79,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Crop Demo'),
+        title: const Text('Crop Demo'),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.link),
+          icon: const Icon(Icons.link),
           onPressed: () {
             launch('https://github.com/xclud/flutter_crop');
           },
@@ -88,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             onPressed: _cropImage,
             tooltip: 'Crop',
-            icon: Icon(Icons.crop),
+            icon: const Icon(Icons.crop),
           )
         ],
       ),
@@ -97,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Container(
               color: Colors.black,
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               child: Crop(
                 onChanged: (decomposition) {
                   if (_rotation != decomposition.rotation) {
@@ -106,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   }
 
-                  print(
-                      "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
+                  // print(
+                  //     "Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}");
                 },
                 controller: controller,
                 shape: shape,
@@ -122,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 foreground: IgnorePointer(
                   child: Container(
                     alignment: Alignment.bottomRight,
-                    child: Text(
+                    child: const Text(
                       'Foreground Object',
                       style: TextStyle(color: Colors.red),
                     ),
@@ -141,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             children: <Widget>[
               IconButton(
-                icon: Icon(Icons.undo),
+                icon: const Icon(Icons.undo),
                 tooltip: 'Undo',
                 onPressed: () {
                   controller.rotation = 0;
@@ -173,13 +176,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               PopupMenuButton<BoxShape>(
-                icon: Icon(Icons.crop_free),
+                icon: const Icon(Icons.crop_free),
                 itemBuilder: (context) => [
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("Box"),
                     value: BoxShape.rectangle,
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("Oval"),
                     value: BoxShape.circle,
                   ),
@@ -192,30 +195,30 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               PopupMenuButton<double>(
-                icon: Icon(Icons.aspect_ratio),
+                icon: const Icon(Icons.aspect_ratio),
                 itemBuilder: (context) => [
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("Original"),
                     value: 1000 / 667.0,
                   ),
-                  PopupMenuDivider(),
-                  PopupMenuItem(
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
                     child: Text("16:9"),
                     value: 16.0 / 9.0,
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("4:3"),
                     value: 4.0 / 3.0,
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("1:1"),
                     value: 1,
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("3:4"),
                     value: 3.0 / 4.0,
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     child: Text("9:16"),
                     value: 9.0 / 16.0,
                   ),
@@ -238,7 +241,6 @@ Future<dynamic> _saveScreenShot(ui.Image img) async {
   var byteData = await img.toByteData(format: ui.ImageByteFormat.png);
   var buffer = byteData!.buffer.asUint8List();
   final result = await ImageGallerySaver.saveImage(buffer);
-  print(result);
 
   return result;
 }
