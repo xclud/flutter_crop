@@ -1,5 +1,9 @@
+### [0.5.1+2] - 2021/06/24
+- Documentation.
+
 ### [0.5.1+1] - 2021/05/30
 - Documentation.
+
 
 ### [0.5.1] - 2021/05/07
 - Support two-finger rotation gesture.
