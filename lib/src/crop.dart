@@ -71,11 +71,13 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   final _repaintBoundaryKey = GlobalKey();
 
   double _previousScale = 1;
+  double scaleLimit = 3; //default value 3
   Offset _previousOffset = Offset.zero;
   Offset _startOffset = Offset.zero;
   Offset _endOffset = Offset.zero;
   double _previousGestureRotation = 0.0;
 
+  set scaleLimitSetter(scale) => scaleLimit = scale;
   /// Store the pointer count (finger involved to perform scaling).
   ///
   /// This is used to compare with the value in
@@ -191,7 +193,9 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   void _onScaleUpdate(ScaleUpdateDetails details) {
     widget.controller._offset += details.focalPoint - _previousOffset;
     _previousOffset = details.focalPoint;
-    widget.controller._scale = _previousScale * details.scale;
+    if(_previousScale < scaleLimit){
+      widget.controller._scale = _previousScale * details.scale;
+    }
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
