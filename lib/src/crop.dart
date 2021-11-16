@@ -119,9 +119,18 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final childWidgetSize =
         (_childKey.currentContext?.findRenderObject() as RenderBox).size;
-    final w = (sz.width * (childWidgetSize.aspectRatio / sz.aspectRatio))
-        .truncateToDouble();
-    final h = sz.height.truncateToDouble();
+
+    double w, h;
+    final ratio = childWidgetSize.aspectRatio / sz.aspectRatio;
+    if (childWidgetSize.aspectRatio < 1.0) {
+      // Vertical image. Height needs to be rescaled according to ratio.
+      w = sz.width.truncateToDouble();
+      h = (sz.height / ratio).truncateToDouble();
+    } else {
+      // Horizontal or square image. Width needs to be rescaled according to ratio (for square ratio is 1.0).
+      w = (sz.width * ratio).truncateToDouble();
+      h = sz.height.truncateToDouble();
+    }
 
     final canvas = Rect.fromLTWH(0, 0, w, h);
     final imageBoundaries = Rect.fromCenter(
