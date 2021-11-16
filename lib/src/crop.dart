@@ -69,6 +69,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   final _key = GlobalKey();
   final _parent = GlobalKey();
   final _repaintBoundaryKey = GlobalKey();
+  final _childKey = GlobalKey();
 
   double _previousScale = 1;
   Offset _previousOffset = Offset.zero;
@@ -114,66 +115,35 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   }
 
   void _reCenterImage([bool animate = true]) {
-    //final totalSize = _parent.currentContext.size;
-
     final sz = _key.currentContext!.size!;
     final s = widget.controller._scale * widget.controller._getMinScale();
-    final w = sz.width;
-    final h = sz.height;
-    final offset = _toVector2(widget.controller._offset);
-    final canvas = Rectangle.fromLTWH(0, 0, w, h);
-    final obb = Obb2(
-      center: offset + canvas.center,
-      width: w * s,
-      height: h * s,
-      rotation: widget.controller._rotation,
-    );
+    final childWidgetSize =
+        (_childKey.currentContext?.findRenderObject() as RenderBox).size;
+    final w = (sz.width * (childWidgetSize.aspectRatio / sz.aspectRatio))
+        .truncateToDouble();
+    final h = sz.height.truncateToDouble();
 
-    final bakedObb = obb.bake();
+    final canvas = Rect.fromLTWH(0, 0, w, h);
+    final imageBoundaries = Rect.fromCenter(
+        center: widget.controller._offset + canvas.center,
+        width: w * s * cos(vm.radians(widget.controller._rotation)).abs() +
+            h * s * sin(vm.radians(widget.controller._rotation)).abs(),
+        height: w * s * sin(vm.radians(widget.controller._rotation)).abs() +
+            h * s * cos(vm.radians(widget.controller._rotation)).abs());
+
+    var clampBoundaries = Rect.fromCenter(
+        center: Offset.zero,
+        width: ((imageBoundaries.width - sz.width).abs().floorToDouble()),
+        height: (imageBoundaries.height - sz.height).abs().floorToDouble());
+
+    final clampedOffset = Offset(
+        min(max(widget.controller._offset.dx, clampBoundaries.left),
+            clampBoundaries.right.floorToDouble()),
+        min(max(widget.controller._offset.dy, clampBoundaries.top),
+            clampBoundaries.bottom));
 
     _startOffset = widget.controller._offset;
-    _endOffset = widget.controller._offset;
-
-    final ctl = canvas.topLeft;
-    final ctr = canvas.topRight;
-    final cbr = canvas.bottomRight;
-    final cbl = canvas.bottomLeft;
-
-    final ll = Line(bakedObb.topLeft, bakedObb.bottomLeft);
-    final tt = Line(bakedObb.topRight, bakedObb.topLeft);
-    final rr = Line(bakedObb.bottomRight, bakedObb.topRight);
-    final bb = Line(bakedObb.bottomLeft, bakedObb.bottomRight);
-
-    final tl = ll.project(ctl);
-    final tr = tt.project(ctr);
-    final br = rr.project(cbr);
-    final bl = bb.project(cbl);
-
-    final dtl = ll.distanceToPoint(ctl);
-    final dtr = tt.distanceToPoint(ctr);
-    final dbr = rr.distanceToPoint(cbr);
-    final dbl = bb.distanceToPoint(cbl);
-
-    if (dtl > 0) {
-      final d = _toOffset(ctl - tl);
-      _endOffset += d;
-    }
-
-    if (dtr > 0) {
-      final d = _toOffset(ctr - tr);
-      _endOffset += d;
-    }
-
-    if (dbr > 0) {
-      final d = _toOffset(cbr - br);
-      _endOffset += d;
-    }
-    if (dbl > 0) {
-      final d = _toOffset(cbl - bl);
-      _endOffset += d;
-    }
-
-    widget.controller._offset = _endOffset;
+    widget.controller._offset = _endOffset = clampedOffset;
 
     if (animate) {
       if (_controller.isCompleted || _controller.isAnimating) {
@@ -255,7 +225,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
             ..rotateZ(r)
             ..scale(s, s, 1),
           child: FittedBox(
-            child: widget.child,
+            child: Container(key: _childKey, child: widget.child),
             fit: BoxFit.cover,
           ),
         ),
