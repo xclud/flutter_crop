@@ -124,12 +124,12 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final ratio = childWidgetSize.aspectRatio / sz.aspectRatio;
     if (childWidgetSize.aspectRatio < 1.0) {
       // Vertical image. Height needs to be rescaled according to ratio.
-      w = sz.width.truncateToDouble();
-      h = (sz.height / ratio).truncateToDouble();
+      w = sz.width;
+      h = sz.height / ratio;
     } else {
       // Horizontal or square image. Width needs to be rescaled according to ratio (for square ratio is 1.0).
-      w = (sz.width * ratio).truncateToDouble();
-      h = sz.height.truncateToDouble();
+      w = sz.width * ratio;
+      h = sz.height;
     }
 
     final canvas = Rect.fromLTWH(0, 0, w, h);
@@ -146,10 +146,10 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         height: (imageBoundaries.height - sz.height).abs().floorToDouble());
 
     final clampedOffset = Offset(
-        min(max(widget.controller._offset.dx, clampBoundaries.left),
-            clampBoundaries.right.floorToDouble()),
-        min(max(widget.controller._offset.dy, clampBoundaries.top),
-            clampBoundaries.bottom));
+        widget.controller._offset.dx
+            .clamp(clampBoundaries.left, clampBoundaries.right),
+        widget.controller._offset.dy
+            .clamp(clampBoundaries.top, clampBoundaries.bottom));
 
     _startOffset = widget.controller._offset;
     widget.controller._offset = _endOffset = clampedOffset;
