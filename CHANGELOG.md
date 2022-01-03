@@ -1,3 +1,6 @@
+### [0.5.2] - 2022/01/03
+- More Documentation.
+- 
 ### [0.5.1+2] - 2021/06/24
 - Documentation.
 

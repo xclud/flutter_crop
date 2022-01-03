@@ -7,7 +7,7 @@ A Flutter package for cropping any widget, not only images. This package is enti
 ## Supported platforms
 * Flutter Android
 * Flutter iOS
-* Flutter Web (as of 2020 Nov 24)*
+* Flutter Web (Only with Skia, see below)*
 * Flutter Desktop
 
 ## Building For Web
@@ -19,7 +19,7 @@ flutter build web --web-renderer canvaskit
 ## Demo
 [Web Demo](https://xclud.github.io/flutter_crop/) | [Install from Google Play](https://play.google.com/store/apps/details?id=dev.pub.crop.app)
 
-![Screenshot](docs/screenshot01.png)
+![Screenshot](https://github.com/xclud/flutter_crop/blob/main/docs/screenshot01.png)
 
 ## Getting Started
 
