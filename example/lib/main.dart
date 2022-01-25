@@ -70,12 +70,16 @@ class MyHomePage extends StatelessWidget {
       body: Column(
         children: <Widget>[
           const Expanded(child: CropperWidget()),
-          Row(
-            children: const [
-              UndoButton(),
-              Expanded(child: RotationSlider()),
-              BoxShapeButton(),
-              RatioButton(),
+          Column(
+            children: [
+              Row(
+                children: const [
+                  UndoButton(),
+                  BoxShapeButton(),
+                  RatioButton(),
+                ],
+              ),
+              const RotationSlider()
             ],
           ),
         ],
