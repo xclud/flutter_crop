@@ -437,7 +437,7 @@ class CropController extends ChangeNotifier {
   /// in the image.
   Future<ui.Image> crop({double pixelRatio = 1}) {
     if (_cropCallback == null) {
-      return Future.value(null);
+      throw Exception('Crop callback is not set');
     }
 
     return _cropCallback!.call(pixelRatio);
