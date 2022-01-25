@@ -1,12 +1,9 @@
-import 'dart:ui' as ui;
 import 'package:app/centered_slider_track_shape.dart';
 import 'package:app/save_to_gallery_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:crop/crop.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(const MyApp());
 
