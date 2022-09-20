@@ -138,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       )
                     : null,
+                scaleLimit: 3.0,
               ),
             ),
           ),

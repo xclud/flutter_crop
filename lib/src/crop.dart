@@ -23,6 +23,7 @@ class Crop extends StatefulWidget {
   final BoxShape shape;
   final ValueChanged<MatrixDecomposition>? onChanged;
   final Duration animationDuration;
+  final double? scaleLimit;
 
   const Crop({
     Key? key,
@@ -38,6 +39,7 @@ class Crop extends StatefulWidget {
     this.interactive = true,
     this.shape = BoxShape.rectangle,
     this.onChanged,
+    this.scaleLimit,
     this.animationDuration = const Duration(milliseconds: 200),
   }) : super(key: key);
 
@@ -71,10 +73,12 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
   final _repaintBoundaryKey = GlobalKey();
 
   double _previousScale = 1;
+
   Offset _previousOffset = Offset.zero;
   Offset _startOffset = Offset.zero;
   Offset _endOffset = Offset.zero;
   double _previousGestureRotation = 0.0;
+
 
   /// Store the pointer count (finger involved to perform scaling).
   ///
@@ -192,6 +196,9 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     widget.controller._offset += details.focalPoint - _previousOffset;
     _previousOffset = details.focalPoint;
     widget.controller._scale = _previousScale * details.scale;
+    if(widget.scaleLimit != null && widget.controller._scale > widget.scaleLimit!){
+      widget.controller._scale = widget.scaleLimit!;
+    }
     _startOffset = widget.controller._offset;
     _endOffset = widget.controller._offset;
 
