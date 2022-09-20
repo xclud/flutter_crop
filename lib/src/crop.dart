@@ -23,6 +23,7 @@ class Crop extends StatefulWidget {
   final BoxShape shape;
   final ValueChanged<MatrixDecomposition>? onChanged;
   final Duration animationDuration;
+  final bool disableRotation;
 
   const Crop({
     Key? key,
@@ -39,6 +40,7 @@ class Crop extends StatefulWidget {
     this.shape = BoxShape.rectangle,
     this.onChanged,
     this.animationDuration = const Duration(milliseconds: 200),
+    this.disableRotation = false,
   }) : super(key: key);
 
   @override
@@ -197,7 +199,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
 
     // In the case where lesser than 2 fingers involved in scaling, we ignore
     // the rotation handling.
-    if (details.pointerCount > 1) {
+    if (details.pointerCount > 1 && !widget.disableRotation) {
       // In the first touch, we reset all the values.
       if (_previousPointerCount != details.pointerCount) {
         _previousPointerCount = details.pointerCount;
