@@ -17,10 +17,12 @@ const RESOURCES = {
 "flutter.js": "195f32f4217e034162a6697208586f44",
 "icons/Icon-192.png": "c68f78f81052725c8f7022f5f8063586",
 "icons/Icon-512.png": "8cd306b18c528e36cb8f1d3ddf0f944f",
-"index.html": "0c3f9d4bba75604264dd8b3fc7b73644",
-"/": "0c3f9d4bba75604264dd8b3fc7b73644",
+"icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
+"icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
+"index.html": "4a82c8bda04f89f0f28ed62245980065",
+"/": "4a82c8bda04f89f0f28ed62245980065",
 "main.dart.js": "8b2bd3bba97b874482edcf8b0ab6a3cc",
-"manifest.json": "c1f351a9d77e3d6d48b7f36eec4c0b13",
+"manifest.json": "1d4bc7ccc594f0e3208e239887c4a69b",
 "version.json": "11e1a177d57c5da2bc6e3a6acc3010f4"
 };
 
