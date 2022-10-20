@@ -1,4 +1,55 @@
 include: package:flutter_lints/flutter.yaml
-
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+analyzer:
+  language:
+    strict-raw-types: false
+  strong-mode:
+    implicit-casts: true
+    implicit-dynamic: false
+  errors:
+    always_declare_return_types: error
+    always_specify_types: error
+    always_use_package_imports: error
+    annotate_overrides: error
+    argument_type_not_assignable: error
+    avoid_function_literals_in_foreach_calls: error
+    avoid_renaming_method_parameters: error
+    avoid_types_on_closure_parameters: error
+    avoid_unnecessary_containers: error
+    await_only_futures: error
+    curly_braces_in_flow_control_structures: error
+    dead_code: error
+    duplicate_import: error
+    file_names: error
+    implicit_dynamic_function: ignore
+    implicit_dynamic_parameter: error
+    implicit_dynamic_list_literal: ignore
+    implicit_dynamic_map_literal: ignore
+    implicit_dynamic_method: ignore
+    implicit_dynamic_type: ignore
+    implicit_dynamic_variable: ignore
+    invalid_assignment: error
+    missing_return: error
+    prefer_const_constructors: error
+    prefer_const_constructors_in_immutables: error
+    prefer_const_declarations: error
+    prefer_collection_literals: error
+    prefer_contains: error
+    prefer_const_literals_to_create_immutables: error
+    prefer_final_fields: error
+    prefer_single_quotes: error 
+    sized_box_for_whitespace: error
+    sort_constructors_first: error
+    sort_unnamed_constructors_first: error
+    use_function_type_syntax_for_parameters: error
+    use_key_in_widget_constructors: error
+    unnecessary_import: error
+    unnecessary_string_interpolations: error
+    unnecessary_this: error
+    unused_import: error
+linter:
+  rules:
+    avoid_print: false
+    prefer_single_quotes: true
+    always_use_package_imports: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true

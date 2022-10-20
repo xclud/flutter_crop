@@ -10,20 +10,7 @@ import 'package:vector_math/vector_math_64.dart' as vm;
 
 /// Used for cropping the [child] widget.
 class Crop extends StatefulWidget {
-  final Widget child;
-  final CropController controller;
-  final Color backgroundColor;
-  final Color dimColor;
-  final EdgeInsetsGeometry padding;
-  final Widget? background;
-  final Widget? foreground;
-  final Widget? helper;
-  final Widget? overlay;
-  final bool interactive;
-  final BoxShape shape;
-  final ValueChanged<MatrixDecomposition>? onChanged;
-  final Duration animationDuration;
-
+  /// The constructor.
   const Crop({
     Key? key,
     required this.child,
@@ -40,6 +27,20 @@ class Crop extends StatefulWidget {
     this.onChanged,
     this.animationDuration = const Duration(milliseconds: 200),
   }) : super(key: key);
+
+  final Widget child;
+  final CropController controller;
+  final Color backgroundColor;
+  final Color dimColor;
+  final EdgeInsetsGeometry padding;
+  final Widget? background;
+  final Widget? foreground;
+  final Widget? helper;
+  final Widget? overlay;
+  final bool interactive;
+  final BoxShape shape;
+  final ValueChanged<MatrixDecomposition>? onChanged;
+  final Duration animationDuration;
 
   @override
   State<StatefulWidget> createState() {
@@ -245,7 +246,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     final s = widget.controller._scale * widget.controller._getMinScale();
     final o = Offset.lerp(_startOffset, _endOffset, _animation.value)!;
 
-    Widget _buildInnerCanvas() {
+    Widget buildInnerCanvas() {
       final ip = IgnorePointer(
         key: _key,
         child: Transform(
@@ -255,8 +256,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
             ..rotateZ(r)
             ..scale(s, s, 1),
           child: FittedBox(
-            child: widget.child,
             fit: BoxFit.cover,
+            child: widget.child,
           ),
         ),
       );
@@ -283,10 +284,10 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
       }
     }
 
-    Widget _buildRepaintBoundary() {
+    Widget buildRepaintBoundary() {
       final repaint = RepaintBoundary(
         key: _repaintBoundaryKey,
-        child: _buildInnerCanvas(),
+        child: buildInnerCanvas(),
       );
 
       if (widget.helper == null) {
@@ -318,7 +319,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         backgroundColor: widget.backgroundColor,
         shape: widget.shape,
         dimColor: widget.dimColor,
-        child: _buildRepaintBoundary(),
+        child: buildRepaintBoundary(),
       ),
     ];
 
@@ -351,6 +352,16 @@ typedef _CropCallback = Future<ui.Image> Function(double pixelRatio);
 
 /// The controller used to control the rotation, scale and actual cropping.
 class CropController extends ChangeNotifier {
+  /// Constructor
+  CropController({
+    double aspectRatio = 1.0,
+    double scale = 1.0,
+    double rotation = 0,
+  }) {
+    _aspectRatio = aspectRatio;
+    _scale = scale;
+    _rotation = rotation;
+  }
   double _aspectRatio = 1;
   double _rotation = 0;
   double _scale = 1;
@@ -399,17 +410,6 @@ class CropController extends ChangeNotifier {
     ..rotateZ(_rotation)
     ..scale(_scale, _scale, 1);
 
-  /// Constructor
-  CropController({
-    double aspectRatio = 1.0,
-    double scale = 1.0,
-    double rotation = 0,
-  }) {
-    _aspectRatio = aspectRatio;
-    _scale = scale;
-    _rotation = rotation;
-  }
-
   double _getMinScale() {
     final r = vm.radians(_rotation % 360);
     final rabs = r.abs();
@@ -435,7 +435,7 @@ class CropController extends ChangeNotifier {
   /// [window.devicePixelRatio] for the device, so specifying 1.0 (the default)
   /// will give you a 1:1 mapping between logical pixels and the output pixels
   /// in the image.
-  Future<ui.Image> crop({double pixelRatio = 1}) {
+  Future<ui.Image?> crop({double pixelRatio = 1}) {
     if (_cropCallback == null) {
       return Future.value(null);
     }
