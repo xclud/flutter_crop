@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   collision: ^0.0.3
-  vector_math: ^2.1.4
+  vector_math: ^2.1.2
 
 dev_dependencies:
   flutter_test:
