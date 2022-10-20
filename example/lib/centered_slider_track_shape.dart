@@ -1,20 +1,20 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 
 class CenteredRectangularSliderTrackShape extends RectangularSliderTrackShape {
   @override
   void paint(
     PaintingContext context,
-    ui.Offset offset, {
+    Offset offset, {
     required RenderBox parentBox,
     required SliderThemeData sliderTheme,
     required Animation<double> enableAnimation,
-    required ui.Offset thumbCenter,
-    required ui.TextDirection textDirection,
-    bool isEnabled = false,
+    required TextDirection textDirection,
+    required Offset thumbCenter,
+    Offset? secondaryOffset,
     bool isDiscrete = false,
+    bool isEnabled = false,
   }) {
     // If the slider track height is less than or equal to 0, then it makes no
     // difference whether the track is painted or not, therefore the painting

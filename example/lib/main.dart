@@ -38,6 +38,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
 
+    if (cropped == null) {
+      return;
+    }
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => Scaffold(
@@ -84,7 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
         leading: IconButton(
           icon: const Icon(Icons.link),
           onPressed: () {
-            launch('https://github.com/xclud/flutter_crop');
+            launchUrl(Uri.parse('https://github.com/xclud/flutter_crop'),
+                mode: LaunchMode.externalApplication);
           },
         ),
         actions: <Widget>[
