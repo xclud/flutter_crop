@@ -13,6 +13,8 @@ jobs:
     name: Build Web Demo
     runs-on: ubuntu-latest
     steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2 # required!
       - uses: subosito/flutter-action@v2
         with:
           channel: "master"
