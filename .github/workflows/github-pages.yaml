@@ -25,20 +25,17 @@ jobs:
       - run: cd example && flutter test
       - name: Build Web App
         run: cd example && flutter build web --base-href /flutter_crop/
-      - name: Create Tar File
-        run: cd example && tar -C build/web/ -zcvf build/web.tar.gz .
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: github-pages
-          path: example/build/web.tar.gz
+          path: example/build/web/
   deploy:
     name: Deploy GitHub Pages
     needs: build
     runs-on: ubuntu-latest
     permissions:
       pages: write
-      id-token: write 
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
