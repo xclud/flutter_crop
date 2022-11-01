@@ -21,17 +21,17 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: "master"
-      - run: flutter pub get
-      - run: flutter test
+      - run: cd example && flutter pub get
+      - run: cd example && flutter test
       - name: Build Web App
-        run: flutter build web --base-href /flutter_crop/
+        run: cd example && flutter build web --base-href /flutter_crop/
       - name: Create Tar File
-        run: tar -C build/web/ -zcvf build/web.tar.gz .
+        run: cd example && tar -C build/web/ -zcvf build/web.tar.gz .
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: github-pages
-          path: build/web.tar.gz
+          path: example/build/web.tar.gz
   deploy:
     name: Deploy GitHub Pages
     needs: build
