@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        run: |
+          git config remote.origin.url https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
+          git fetch --prune --depth=10000
       - uses: subosito/flutter-action@v2
         with:
           channel: "master"
