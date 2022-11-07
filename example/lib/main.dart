@@ -17,19 +17,21 @@ class MyApp extends StatelessWidget {
       title: 'Crop Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        useMaterial3: true,
+        brightness: Brightness.dark,
       ),
-      home: const MyHomePage(),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
   final controller = CropController(aspectRatio: 1000 / 667.0);
   double _rotation = 0;
   BoxShape shape = BoxShape.rectangle;
@@ -39,6 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
     final cropped = await controller.crop(pixelRatio: pixelRatio);
 
     if (cropped == null) {
+      return;
+    }
+
+    if (!mounted) {
       return;
     }
 
@@ -56,6 +62,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     final status = await Permission.storage.request();
                     if (status == PermissionStatus.granted) {
                       await _saveScreenShot(cropped);
+                      if (!mounted) {
+                        return;
+                      }
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Saved to gallery.'),
@@ -119,10 +128,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 controller: controller,
                 shape: shape,
-                child: Image.asset(
-                  'images/sample.jpg',
-                  fit: BoxFit.cover,
-                ),
                 /* It's very important to set `fit: BoxFit.cover`.
                    Do NOT remove this line.
                    There are a lot of issues on github repo by people who remove this line and their image is not shown correctly.
@@ -143,6 +148,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       )
                     : null,
+                child: Image.asset(
+                  'images/sample.jpg',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
@@ -184,12 +193,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: const Icon(Icons.crop_free),
                 itemBuilder: (context) => [
                   const PopupMenuItem(
-                    child: Text("Box"),
                     value: BoxShape.rectangle,
+                    child: Text("Box"),
                   ),
                   const PopupMenuItem(
-                    child: Text("Oval"),
                     value: BoxShape.circle,
+                    child: Text("Oval"),
                   ),
                 ],
                 tooltip: 'Crop Shape',
@@ -203,29 +212,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: const Icon(Icons.aspect_ratio),
                 itemBuilder: (context) => [
                   const PopupMenuItem(
-                    child: Text("Original"),
                     value: 1000 / 667.0,
+                    child: Text("Original"),
                   ),
                   const PopupMenuDivider(),
                   const PopupMenuItem(
-                    child: Text("16:9"),
                     value: 16.0 / 9.0,
+                    child: Text("16:9"),
                   ),
                   const PopupMenuItem(
-                    child: Text("4:3"),
                     value: 4.0 / 3.0,
+                    child: Text("4:3"),
                   ),
                   const PopupMenuItem(
-                    child: Text("1:1"),
                     value: 1,
+                    child: Text("1:1"),
                   ),
                   const PopupMenuItem(
-                    child: Text("3:4"),
                     value: 3.0 / 4.0,
+                    child: Text("3:4"),
                   ),
                   const PopupMenuItem(
-                    child: Text("9:16"),
                     value: 9.0 / 16.0,
+                    child: Text("9:16"),
                   ),
                 ],
                 tooltip: 'Aspect Ratio',
