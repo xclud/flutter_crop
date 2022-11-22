@@ -11,6 +11,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     this.backgroundColor = Colors.black,
     this.dimColor = const Color.fromRGBO(0, 0, 0, 0.8),
     this.padding = EdgeInsets.zero,
+    this.radius,
   }) : super(key: key, child: child);
 
   /// Aspect ratio.
@@ -28,6 +29,9 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// Padding of crop area.
   final EdgeInsets padding;
 
+  /// Radius of crop area.
+  final Radius? radius;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()
@@ -35,7 +39,8 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
       ..dimColor = dimColor
       ..backgroundColor = backgroundColor
       ..shape = shape
-      ..padding = padding;
+      ..padding = padding
+      ..radius = radius;
   }
 
   @override
@@ -81,6 +86,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   Color? backgroundColor;
   BoxShape? shape;
   EdgeInsets? padding;
+  Radius? radius;
 
   @override
   bool hitTestSelf(Offset position) => false;
@@ -113,14 +119,24 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       size.height,
       padding!,
     );
-    Rect rect = Rect.fromCenter(
-        center: center, width: forcedSize.width, height: forcedSize.height);
 
     final path = Path();
-    if (shape == BoxShape.circle) {
-      path.addOval(rect);
-    } else if (shape == BoxShape.rectangle) {
-      path.addRect(rect);
+    final baseRect = Rect.fromCenter(
+      center: center,
+      width: forcedSize.width,
+      height: forcedSize.height,
+    );
+
+    if (radius != null) {
+      final rect = RRect.fromRectAndRadius(baseRect, radius!);
+      path.addRRect(rect);
+    } else {
+      final rect = baseRect;
+      if (shape == BoxShape.circle) {
+        path.addOval(rect);
+      } else if (shape == BoxShape.rectangle) {
+        path.addRect(rect);
+      }
     }
 
     path.addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height));

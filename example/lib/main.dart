@@ -114,7 +114,6 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: Container(
               color: Colors.black,
-              padding: const EdgeInsets.all(20),
               child: Crop(
                 onChanged: (decomposition) {
                   if (_rotation != decomposition.rotation) {
@@ -141,10 +140,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+                radius: const Radius.circular(20),
                 helper: shape == BoxShape.rectangle
                     ? Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.white, width: 2),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       )
                     : null,
