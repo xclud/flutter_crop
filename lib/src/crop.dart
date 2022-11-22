@@ -32,7 +32,7 @@ class Crop extends StatefulWidget {
   final CropController controller;
   final Color backgroundColor;
   final Color dimColor;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsets padding;
   final Widget? background;
   final Widget? foreground;
   final Widget? helper;
@@ -319,6 +319,7 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         backgroundColor: widget.backgroundColor,
         shape: widget.shape,
         dimColor: widget.dimColor,
+        padding: widget.padding,
         child: buildRepaintBoundary(),
       ),
     ];

@@ -10,6 +10,7 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     Key? key,
     this.backgroundColor = Colors.black,
     this.dimColor = const Color.fromRGBO(0, 0, 0, 0.8),
+    this.padding = EdgeInsets.zero,
   }) : super(key: key, child: child);
 
   /// Aspect ratio.
@@ -24,13 +25,17 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// Shape of crop area.
   final BoxShape shape;
 
+  /// Padding of crop area.
+  final EdgeInsets padding;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
       ..backgroundColor = backgroundColor
-      ..shape = shape;
+      ..shape = shape
+      ..padding = padding;
   }
 
   @override
@@ -75,6 +80,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   Color? dimColor;
   Color? backgroundColor;
   BoxShape? shape;
+  EdgeInsets? padding;
 
   @override
   bool hitTestSelf(Offset position) => false;
@@ -85,8 +91,12 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     size = constraints.biggest;
 
     if (child != null) {
-      final forcedSize =
-          _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+      final forcedSize = _getSizeToFitByRatio(
+        aspectRatio!,
+        size.width,
+        size.height,
+        padding!,
+      );
       child!.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
     }
   }
@@ -97,8 +107,12 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       size.height / 2,
     );
 
-    final forcedSize =
-        _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+    final forcedSize = _getSizeToFitByRatio(
+      aspectRatio!,
+      size.width,
+      size.height,
+      padding!,
+    );
     Rect rect = Rect.fromCenter(
         center: center, width: forcedSize.width, height: forcedSize.height);
 
@@ -125,8 +139,12 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       context.canvas.drawRect(bounds, Paint()..color = backgroundColor!);
     }
 
-    final forcedSize =
-        _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+    final forcedSize = _getSizeToFitByRatio(
+      aspectRatio!,
+      size.width,
+      size.height,
+      padding!,
+    );
 
     if (child != null) {
       final Offset tmp = (size - forcedSize) as Offset;
@@ -148,7 +166,11 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
 }
 
 Size _getSizeToFitByRatio(
-    double imageAspectRatio, double containerWidth, double containerHeight) {
+  double imageAspectRatio,
+  double containerWidth,
+  double containerHeight,
+  EdgeInsets padding,
+) {
   var targetAspectRatio = containerWidth / containerHeight;
 
   // no need to adjust the size if current size is square
@@ -164,5 +186,8 @@ Size _getSizeToFitByRatio(
   }
 
   // set the adjusted size (same if square)
-  return Size(adjustedWidth, adjustedHeight);
+  return Size(
+    adjustedWidth - padding.horizontal,
+    adjustedHeight - padding.vertical,
+  );
 }
