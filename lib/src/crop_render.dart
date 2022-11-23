@@ -1,73 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
-/// Render object widget with a [RenderCrop] inside.
-class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
-  const CropRenderObjectWidget({
-    required Widget child,
-    required this.aspectRatio,
-    required this.shape,
-    Key? key,
-    this.backgroundColor = Colors.black,
-    this.dimColor = const Color.fromRGBO(0, 0, 0, 0.8),
-  }) : super(key: key, child: child);
-
-  /// Aspect ratio.
-  final double aspectRatio;
-
-  /// Dim Color.
-  final Color dimColor;
-
-  /// Background color.
-  final Color backgroundColor;
-
-  /// Shape of crop area.
-  final BoxShape shape;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) {
-    return RenderCrop()
-      ..aspectRatio = aspectRatio
-      ..dimColor = dimColor
-      ..backgroundColor = backgroundColor
-      ..shape = shape;
-  }
-
-  @override
-  void updateRenderObject(BuildContext context, RenderCrop renderObject) {
-    bool needsPaint = false;
-    bool needsLayout = false;
-
-    if (renderObject.aspectRatio != aspectRatio) {
-      renderObject.aspectRatio = aspectRatio;
-      needsLayout = true;
-    }
-
-    if (renderObject.dimColor != dimColor) {
-      renderObject.dimColor = dimColor;
-      needsPaint = true;
-    }
-
-    if (renderObject.shape != shape) {
-      renderObject.shape = shape;
-      needsPaint = true;
-    }
-
-    if (renderObject.backgroundColor != backgroundColor) {
-      renderObject.backgroundColor = backgroundColor;
-      needsPaint = true;
-    }
-
-    if (needsLayout) {
-      renderObject.markNeedsLayout();
-    }
-    if (needsPaint) {
-      renderObject.markNeedsPaint();
-    }
-
-    super.updateRenderObject(context, renderObject);
-  }
-}
+part of crop;
 
 /// RenderBox for [Crop].
 class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
@@ -145,24 +76,4 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       );
     }
   }
-}
-
-Size _getSizeToFitByRatio(
-    double imageAspectRatio, double containerWidth, double containerHeight) {
-  var targetAspectRatio = containerWidth / containerHeight;
-
-  // no need to adjust the size if current size is square
-  var adjustedWidth = containerWidth;
-  var adjustedHeight = containerHeight;
-
-  // get the larger aspect ratio of the two
-  // if aspect ratio is 1 then no adjustment needed
-  if (imageAspectRatio > targetAspectRatio) {
-    adjustedHeight = containerWidth / imageAspectRatio;
-  } else if (imageAspectRatio < targetAspectRatio) {
-    adjustedWidth = containerHeight * imageAspectRatio;
-  }
-
-  // set the adjusted size (same if square)
-  return Size(adjustedWidth, adjustedHeight);
 }
