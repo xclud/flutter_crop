@@ -9,6 +9,8 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
     Key? key,
     this.backgroundColor = Colors.black,
     this.dimColor = const Color.fromRGBO(0, 0, 0, 0.8),
+    this.padding = EdgeInsets.zero,
+    this.radius,
   }) : super(key: key, child: child);
 
   /// Aspect ratio.
@@ -23,13 +25,21 @@ class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
   /// Shape of crop area.
   final BoxShape shape;
 
+  /// Padding of crop area.
+  final EdgeInsets padding;
+
+  /// Radius of crop area.
+  final Radius? radius;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderCrop()
       ..aspectRatio = aspectRatio
       ..dimColor = dimColor
       ..backgroundColor = backgroundColor
-      ..shape = shape;
+      ..shape = shape
+      ..padding = padding
+      ..radius = radius;
   }
 
   @override
