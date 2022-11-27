@@ -114,6 +114,7 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: Container(
               color: Colors.black,
+              padding: const EdgeInsets.all(8),
               child: Crop(
                 onChanged: (decomposition) {
                   if (_rotation != decomposition.rotation) {

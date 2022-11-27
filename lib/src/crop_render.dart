@@ -18,12 +18,8 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     size = constraints.biggest;
 
     if (child != null) {
-      final forcedSize = _getSizeToFitByRatio(
-        aspectRatio!,
-        size.width,
-        size.height,
-        padding!,
-      );
+      final forcedSize =
+          _getSizeToFitByRatio(aspectRatio!, size.width, size.height, padding!);
       child!.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
     }
   }
@@ -34,12 +30,8 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       size.height / 2,
     );
 
-    final forcedSize = _getSizeToFitByRatio(
-      aspectRatio!,
-      size.width,
-      size.height,
-      padding!,
-    );
+    final forcedSize =
+        _getSizeToFitByRatio(aspectRatio!, size.width, size.height, padding!);
 
     final path = Path();
     final baseRect = Rect.fromCenter(
@@ -76,12 +68,8 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
       context.canvas.drawRect(bounds, Paint()..color = backgroundColor!);
     }
 
-    final forcedSize = _getSizeToFitByRatio(
-      aspectRatio!,
-      size.width,
-      size.height,
-      padding!,
-    );
+    final forcedSize =
+        _getSizeToFitByRatio(aspectRatio!, size.width, size.height, padding!);
 
     if (child != null) {
       final Offset tmp = (size - forcedSize) as Offset;

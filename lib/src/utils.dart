@@ -1,11 +1,7 @@
 part of crop;
 
-Size _getSizeToFitByRatio(
-  double imageAspectRatio,
-  double containerWidth,
-  double containerHeight,
-  EdgeInsets padding,
-) {
+Size _getSizeToFitByRatio(double imageAspectRatio, double containerWidth,
+    double containerHeight, EdgeInsets padding) {
   var targetAspectRatio = containerWidth / containerHeight;
 
   // no need to adjust the size if current size is square
