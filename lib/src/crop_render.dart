@@ -6,6 +6,8 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   Color? dimColor;
   Color? backgroundColor;
   BoxShape? shape;
+  EdgeInsets? padding;
+  Radius? radius;
 
   @override
   bool hitTestSelf(Offset position) => false;
@@ -17,7 +19,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
 
     if (child != null) {
       final forcedSize =
-          _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+          _getSizeToFitByRatio(aspectRatio!, size.width, size.height, padding!);
       child!.layout(BoxConstraints.tight(forcedSize), parentUsesSize: true);
     }
   }
@@ -29,15 +31,25 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     );
 
     final forcedSize =
-        _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
-    Rect rect = Rect.fromCenter(
-        center: center, width: forcedSize.width, height: forcedSize.height);
+        _getSizeToFitByRatio(aspectRatio!, size.width, size.height, padding!);
 
     final path = Path();
-    if (shape == BoxShape.circle) {
-      path.addOval(rect);
-    } else if (shape == BoxShape.rectangle) {
-      path.addRect(rect);
+    final baseRect = Rect.fromCenter(
+      center: center,
+      width: forcedSize.width,
+      height: forcedSize.height,
+    );
+
+    if (radius != null) {
+      final rect = RRect.fromRectAndRadius(baseRect, radius!);
+      path.addRRect(rect);
+    } else {
+      final rect = baseRect;
+      if (shape == BoxShape.circle) {
+        path.addOval(rect);
+      } else if (shape == BoxShape.rectangle) {
+        path.addRect(rect);
+      }
     }
 
     path.addRect(Rect.fromLTWH(0.0, 0.0, size.width, size.height));
@@ -57,7 +69,7 @@ class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
     }
 
     final forcedSize =
-        _getSizeToFitByRatio(aspectRatio!, size.width, size.height);
+        _getSizeToFitByRatio(aspectRatio!, size.width, size.height, padding!);
 
     if (child != null) {
       final Offset tmp = (size - forcedSize) as Offset;

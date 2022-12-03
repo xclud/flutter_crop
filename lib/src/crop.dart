@@ -18,13 +18,14 @@ class Crop extends StatefulWidget {
     this.shape = BoxShape.rectangle,
     this.onChanged,
     this.animationDuration = const Duration(milliseconds: 200),
+    this.radius,
   }) : super(key: key);
 
   final Widget child;
   final CropController controller;
   final Color backgroundColor;
   final Color dimColor;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsets padding;
   final Widget? background;
   final Widget? foreground;
   final Widget? helper;
@@ -33,6 +34,7 @@ class Crop extends StatefulWidget {
   final BoxShape shape;
   final ValueChanged<MatrixDecomposition>? onChanged;
   final Duration animationDuration;
+  final Radius? radius;
 
   @override
   State<StatefulWidget> createState() {
@@ -313,6 +315,8 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         backgroundColor: widget.backgroundColor,
         shape: widget.shape,
         dimColor: widget.dimColor,
+        padding: widget.padding,
+        radius: widget.radius,
         child: buildRepaintBoundary(),
       ),
     ];

@@ -1,7 +1,7 @@
 part of crop;
 
-Size _getSizeToFitByRatio(
-    double imageAspectRatio, double containerWidth, double containerHeight) {
+Size _getSizeToFitByRatio(double imageAspectRatio, double containerWidth,
+    double containerHeight, EdgeInsets padding) {
   var targetAspectRatio = containerWidth / containerHeight;
 
   // no need to adjust the size if current size is square
@@ -17,7 +17,10 @@ Size _getSizeToFitByRatio(
   }
 
   // set the adjusted size (same if square)
-  return Size(adjustedWidth, adjustedHeight);
+  return Size(
+    adjustedWidth - padding.horizontal,
+    adjustedHeight - padding.vertical,
+  );
 }
 
 vm.Vector2 _toVector2(Offset offset) => vm.Vector2(offset.dx, offset.dy);
