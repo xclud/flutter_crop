@@ -2,11 +2,22 @@ part of crop;
 
 /// RenderBox for [Crop].
 class RenderCrop extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
+  /// Aspect ratio of the crop area.
   double? aspectRatio;
+
+  /// Dim color of the crop area.
   Color? dimColor;
+
+  /// Background color of the crop area.
   Color? backgroundColor;
+
+  /// Shape of the crop area.
   BoxShape? shape;
+
+  /// Padding of the crop area.
   EdgeInsets? padding;
+
+  /// Radius of the crop area.
   Radius? radius;
 
   @override

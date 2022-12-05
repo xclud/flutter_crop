@@ -2,6 +2,7 @@ part of crop;
 
 /// Render object widget with a [RenderCrop] inside.
 class CropRenderObjectWidget extends SingleChildRenderObjectWidget {
+  /// Constructor.
   const CropRenderObjectWidget({
     required Widget child,
     required this.aspectRatio,

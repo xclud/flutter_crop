@@ -1,5 +1,7 @@
 include: package:flutter_lints/flutter.yaml
 analyzer:
+  exclude:
+    - 'lib/**/generated/**'
   language:
     strict-raw-types: false
   strong-mode:
@@ -36,7 +38,8 @@ analyzer:
     prefer_contains: error
     prefer_const_literals_to_create_immutables: error
     prefer_final_fields: error
-    prefer_single_quotes: error 
+    prefer_single_quotes: error
+    public_member_api_docs: error
     sized_box_for_whitespace: error
     sort_constructors_first: error
     sort_unnamed_constructors_first: error
@@ -48,8 +51,9 @@ analyzer:
     unused_import: error
 linter:
   rules:
+    always_use_package_imports: true
     avoid_print: false
     prefer_single_quotes: true
-    always_use_package_imports: true
+    public_member_api_docs: true
     sort_constructors_first: true
     sort_unnamed_constructors_first: true

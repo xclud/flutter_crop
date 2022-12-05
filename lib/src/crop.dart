@@ -21,19 +21,50 @@ class Crop extends StatefulWidget {
     this.radius,
   }) : super(key: key);
 
+  /// The widget below this widget in the tree.
   final Widget child;
+
+  /// Controls the crop area.
   final CropController controller;
+
+  /// Background color of the crop area.
   final Color backgroundColor;
+
+  /// Dim color of the crop area.
   final Color dimColor;
+
+  /// Padding of the crop area.
   final EdgeInsets padding;
+
+  /// Background widget displayed on under on the resulting image.
   final Widget? background;
+
+  /// Forground widget is displayed on top on the resulting image.
   final Widget? foreground;
+
+  /// Helper widget is displayed on top on the crop
+  /// area, but not included in the resulting image.
+  ///
+  /// Useful to display helper lines e.g. golden ratio.
   final Widget? helper;
+
+  /// Similar to [helper] but is not transformed.
   final Widget? overlay;
+
+  /// If set to false, the widget will not listen for gestures.
   final bool interactive;
+
+  /// Shape of the crop area.
   final BoxShape shape;
+
+  /// Triggered when a gesture is detected.
   final ValueChanged<MatrixDecomposition>? onChanged;
+
+  /// When dragged out of crop area boundries, it will
+  /// re-center. This sets the re-center duration.
   final Duration animationDuration;
+
+  /// Radius of the crop area.
   final Radius? radius;
 
   @override
@@ -286,13 +317,15 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
         child: buildInnerCanvas(),
       );
 
-      if (widget.helper == null) {
+      final helper = widget.helper;
+
+      if (helper == null) {
         return repaint;
       }
 
       return Stack(
         fit: StackFit.expand,
-        children: [repaint, widget.helper!],
+        children: [repaint, helper],
       );
     }
 
@@ -345,5 +378,3 @@ class _CropState extends State<Crop> with TickerProviderStateMixin {
     super.dispose();
   }
 }
-
-
