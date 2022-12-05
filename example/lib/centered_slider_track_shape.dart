@@ -93,16 +93,22 @@ class CenteredRectangularSliderTrackShape extends RectangularSliderTrackShape {
       }
 
       final activeRect = Rect.fromLTRB(
-          thumbCenter.dx, trackRect.top, trackCenter.dx, trackRect.bottom);
+        thumbCenter.dx + thumbSize.width / 2,
+        trackRect.top,
+        trackRect.center.dx,
+        trackRect.bottom,
+      );
       if (!activeRect.isEmpty) {
         context.canvas.drawRect(activeRect, activePaint);
       }
 
       final Rect rightTrackSegment = Rect.fromLTRB(
-          min(trackCenter.dx, thumbCenter.dx - thumbSize.width / 2),
-          trackRect.top,
-          trackRect.right,
-          trackRect.bottom);
+        max(trackCenter.dx, thumbCenter.dx - thumbSize.width / 2),
+        trackRect.top,
+        trackRect.right,
+        trackRect.bottom,
+      );
+
       if (!rightTrackSegment.isEmpty) {
         context.canvas.drawRect(rightTrackSegment, inactivePaint);
       }
