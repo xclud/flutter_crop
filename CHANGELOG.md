@@ -1,3 +1,7 @@
+## 0.5.4
+
+- More dartdoc comments.
+
 ## 0.5.3
 
 - Upgrade to flutter_lints version 2.
