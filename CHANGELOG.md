@@ -1,3 +1,7 @@
+## 0.5.5
+
+- Allow users to set their own offset.
+
 ## 0.5.4
 
 - More dartdoc comments.

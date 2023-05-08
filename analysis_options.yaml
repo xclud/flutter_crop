@@ -1,12 +1,9 @@
 include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
-    - 'lib/**/generated/**'
+    - "lib/**/generated/**"
   language:
     strict-raw-types: false
-  strong-mode:
-    implicit-casts: true
-    implicit-dynamic: false
   errors:
     always_declare_return_types: error
     always_specify_types: error
