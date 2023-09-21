@@ -31,10 +31,6 @@ Ethereum Address:
 
 I do not accept Bitcoin due to its issues with sustainability and global warming.
 
-## Screenshot
-
-![Screenshot](https://github.com/xclud/flutter_crop/blob/main/docs/screenshot01.png)
-
 ## Getting Started
 
 In your `pubspec.yaml` file add:
